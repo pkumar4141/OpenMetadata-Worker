@@ -1,4 +1,4 @@
-name: Mirror Repo
+name: "Worker: Mirror 3rd Party to Local"
 
 on:
   workflow_dispatch:
