@@ -5,6 +5,8 @@ on:
   push:
     branches:
     - '**'
+  schedule:
+    - cron: '30 1 * * *'
 
 jobs:
   build:
@@ -34,11 +36,11 @@ jobs:
           # The ssh private key for writing to the remote repository, if using ssh
           GIT_SSH_PRIVATE_KEY: ${{ secrets.GIT_SSH_PRIVATE_KEY }} # optional
           # The ssh public key for writing to the remote repository. Normally, not required at all
-          #GIT_SSH_PUBLIC_KEY: # optional
+          GIT_SSH_PUBLIC_KEY: ${{ secrets.GIT_SSH_PUBLIC_KEY }} # optional
           # The contents of a SSH known_hosts file for host key verification
-          GIT_SSH_KNOWN_HOSTS: ${{ secrets.GIT_SSH_KNOWN_HOSTS }} # optional
+          # GIT_SSH_KNOWN_HOSTS: ${{ secrets.GIT_SSH_KNOWN_HOSTS }} # optional
           # if true, skips host key verification. Mutually exclusive with GIT_SSH_KNOWN_HOSTS
-          # GIT_SSH_NO_VERIFY_HOST: "true" # optional, default is false
+          GIT_SSH_NO_VERIFY_HOST: "true" # optional, default is false
           # Push all refs instead of just the current branch
           #PUSH_ALL_REFS: # optional, default is true
           # The arugments to use when pushing the repository
