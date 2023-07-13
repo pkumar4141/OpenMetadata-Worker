@@ -28,7 +28,7 @@ jobs:
           # The remote ref name to use. 'mirror' by default. Useful to avoid conflicts with existing remotes.
           REMOTE_NAME: 'OpenMetadata-Mirror'
           # The remote repository e.g. https://github.com/octocat/foo.git or git@github.com:octocat/foo.git
-          REMOTE: 'git@github.com:JCFG10/OpenMetadata-Mirror.git'
+          REMOTE: 'git@github.com:Jason-Clark-FG/OpenMetadata-Mirror.git'
           # Username for remote repository
           #GIT_USERNAME: # optional
           # The git https password or token for the remote repository
