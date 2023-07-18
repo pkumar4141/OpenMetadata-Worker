@@ -23,6 +23,7 @@ jobs:
           echo "FG_COMPOSE_TARGET: ${{ vars.FG_COMPOSE_TARGET }}"
           ls -laR ${GITHUB_WORKSPACE}
           ls -la ${GITHUB_WORKSPACE}/../
+          ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
 
       - uses: actions/checkout@v3
@@ -34,10 +35,11 @@ jobs:
 
       - name: "Show: Info"
         run: |
-          ls -laR ${GITHUB_WORKSPACE}
+          ls -la ${GITHUB_WORKSPACE}/
           ls -la ${GITHUB_WORKSPACE}/../
+          ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
-  
+
         # - name: Perform Modification
       #   run: |
       #     git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
