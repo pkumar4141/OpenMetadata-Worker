@@ -14,12 +14,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Info
+      - name: "Show: Info"
         run: |
           echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
           echo "FG_USER: ${{ vars.FG_USER }}"
           echo "FG_USERNAME: ${{ vars.FG_USERNAME }}"
           echo "FG_DOMAIN: ${{ vars.FG_DOMAIN }}"
+          echo "FG_COMPOSE_TARGET: ${{ vars.FG_COMPOSE_TARGET }}"
+          ls -la ${GITHUB_WORKSPACE}/../
 
       - uses: actions/checkout@v3
         with:
@@ -28,25 +30,32 @@ jobs:
           fetch-depth: 0
           # token: $${{ secrets.GIT_TOKEN }}
 
-      - name: Perform Modification
+      - name: "Show: Info"
         run: |
-          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
-          git config --global user.name "${{ vars.FG_USER }}"
-          git status
-          git pull
-          git switch "${{ vars.RELEASE_BRANCH }}"
-          git status
-          git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
-          top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
-          which yq >/dev/null 2>&1;echo $?
-          if [[ ${top_level_name} == null ]];then yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
-          key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
-          for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
-          git status
-          git add ${{ vars.FG_COMPOSE_TARGET }}
-          git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
-          git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
-          git status
+          ls -la ${GITHUB_WORKSPACE}/../
+          env | sort
+  
+        # - name: Perform Modification
+      #   run: |
+      #     git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+      #     git config --global user.name "${{ vars.FG_USER }}"
+      #     git status
+      #     git pull
+      #     git switch "${{ vars.RELEASE_BRANCH }}"
+      #     git status
+      #     git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
+      #     set -x
+      #     which yq >/dev/null 2>&1;echo $?
+      #     top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
+      #     if [[ ${top_level_name} == null ]];then yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
+      #     key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
+      #     for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
+      #     set +x
+      #     git status
+      #     git add ${{ vars.FG_COMPOSE_TARGET }}
+      #     git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
+      #     git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
+      #     git status
 
       - name: mirror-repository
         # You may pin to the exact commit or the version.
