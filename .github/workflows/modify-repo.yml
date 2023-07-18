@@ -54,6 +54,7 @@ jobs:
           git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
           set -x
           which yq >/dev/null 2>&1;echo $?
+          compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
           top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
           if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
           key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
@@ -61,6 +62,6 @@ jobs:
           set +x
           git status
           git add ${{ vars.FG_COMPOSE_TARGET }}
-          git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
+          git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
           git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
           git status
