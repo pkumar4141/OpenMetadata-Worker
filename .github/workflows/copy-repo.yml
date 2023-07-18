@@ -79,8 +79,8 @@ jobs:
           for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
           set +x
           git status
-          # git add ${{ vars.FG_COMPOSE_TARGET }}
-          # git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
+          git add ${{ vars.FG_COMPOSE_TARGET }}
+          git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
           # git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
           # git status
 
