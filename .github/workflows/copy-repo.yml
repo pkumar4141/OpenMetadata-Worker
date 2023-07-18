@@ -26,16 +26,17 @@ jobs:
           ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
 
+      # Abuse the .gitignore to checkout self to target
       - uses: actions/checkout@v3
         with:
-          path: '../tools'
+          path: 'target'
 
       - name: "Show: Info"
         run: |
           ls -la ${GITHUB_WORKSPACE}/
           ls -la ${GITHUB_WORKSPACE}/../
           ls -la ${GITHUB_WORKSPACE}/../../
-          ls -la ${GITHUB_WORKSPACE}/../tools/
+          ls -la ${GITHUB_WORKSPACE}/target/
   
       - uses: actions/checkout@v3
         with:
