@@ -17,6 +17,8 @@ jobs:
       - name: Info
         run: |
           echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+          echo "FG_USER: ${{ vars.FG_USER }}"
+          echo "FG_USERNAME: ${{ vars.FG_USERNAME }}"
           echo "FG_DOMAIN: ${{ vars.FG_DOMAIN }}"
 
       - uses: actions/checkout@v3
@@ -28,18 +30,18 @@ jobs:
 
       - name: Perform Modification
         run: |
-          git config --global user.email "${GITHUB_ACTOR}@${FG_DOMAIN}"
-          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+          git config --global user.name "${{ vars.FG_USER }}"
           git status
           git pull
-          git switch "$RELEASE_BRANCH"
+          git switch "${{ vars.RELEASE_BRANCH }}"
           git status
-          git switch -c "${RELEASE_BRANCH}-FG"
-          src/openmetadata-modify-compose.sh docker/docker-compose-quickstart/docker-compose.yml
+          git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
+          ./src/openmetadata-modify-compose.sh ./docker/docker-compose-quickstart/docker-compose.yml
           git status
-          git add docker/docker-compose-quickstart/docker-compose.yml
+          git add ./docker/docker-compose-quickstart/docker-compose.yml
           git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
-          git push -u origin "${RELEASE_BRANCH}-FG"
+          git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
           git status
 
       - name: mirror-repository
