@@ -30,6 +30,7 @@ jobs:
         with:
           repository: Jason-Clark-FG/OpenMetadata-FG
           fetch-depth: 0
+          token: ${{ secrets.FG_READONLY_TOKEN }}
 
       # Show Info
       - name: "Show: Info"
