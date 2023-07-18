@@ -26,11 +26,13 @@ jobs:
           env | sort
 
       # Checkout our local mirror
+      # The public SSH keys for a host may be obtained using the utility `ssh-keyscan`. For example, `ssh-keyscan github.com`.
       - uses: actions/checkout@v3
         with:
           repository: Jason-Clark-FG/OpenMetadata-FG
           fetch-depth: 0
-          token: ${{ secrets.FG_READONLY_TOKEN }}
+          ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          # token: ${{ secrets.FG_READONLY_TOKEN }}
 
       # Show Info
       - name: "Show: Info"
