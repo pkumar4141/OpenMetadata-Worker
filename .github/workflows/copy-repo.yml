@@ -28,6 +28,17 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
+          path: '../tools'
+
+      - name: "Show: Info"
+        run: |
+          ls -la ${GITHUB_WORKSPACE}/
+          ls -la ${GITHUB_WORKSPACE}/../
+          ls -la ${GITHUB_WORKSPACE}/../../
+          ls -la ${GITHUB_WORKSPACE}/../tools/
+  
+      - uses: actions/checkout@v3
+        with:
           repository: Jason-Clark-FG/OpenMetadata-Mirror
           # path: OpenMetadata
           fetch-depth: 0
