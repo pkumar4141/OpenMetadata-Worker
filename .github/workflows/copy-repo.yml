@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Show Info
       - name: "Show: Info"
         run: |
           echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
@@ -26,18 +27,25 @@ jobs:
           ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
 
-      # Abuse the .gitignore to checkout self to target
+      # Checkout self to target
       - uses: actions/checkout@v3
         with:
           path: 'target'
 
+      # Move target up a level to avoid getting clobbered
+      - name: "Move: target"
+        run: |
+          mv -v ${GITHUB_WORKSPACE}/target ${GITHUB_WORKSPACE}/../
+
+      # Show Info
       - name: "Show: Info"
         run: |
           ls -la ${GITHUB_WORKSPACE}/
           ls -la ${GITHUB_WORKSPACE}/../
           ls -la ${GITHUB_WORKSPACE}/../../
-          ls -la ${GITHUB_WORKSPACE}/target/
+          ls -la ${GITHUB_WORKSPACE}/../target/
   
+      # Checkout our local mirror
       - uses: actions/checkout@v3
         with:
           repository: Jason-Clark-FG/OpenMetadata-Mirror
@@ -45,6 +53,7 @@ jobs:
           fetch-depth: 0
           # token: $${{ secrets.GIT_TOKEN }}
 
+      # Show Info
       - name: "Show: Info"
         run: |
           ls -la ${GITHUB_WORKSPACE}/
@@ -52,28 +61,30 @@ jobs:
           ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
 
-        # - name: Perform Modification
-      #   run: |
-      #     git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
-      #     git config --global user.name "${{ vars.FG_USER }}"
-      #     git status
-      #     git pull
-      #     git switch "${{ vars.RELEASE_BRANCH }}"
-      #     git status
-      #     git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
-      #     set -x
-      #     which yq >/dev/null 2>&1;echo $?
-      #     top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
-      #     if [[ ${top_level_name} == null ]];then yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
-      #     key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
-      #     for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
-      #     set +x
-      #     git status
-      #     git add ${{ vars.FG_COMPOSE_TARGET }}
-      #     git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
-      #     git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
-      #     git status
+      # Modify the target docker-conpose file
+      - name: Perform Modification
+        run: |
+          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+          git config --global user.name "${{ vars.FG_USER }}"
+          git status
+          git pull
+          git switch "${{ vars.RELEASE_BRANCH }}"
+          git status
+          git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
+          set -x
+          which yq >/dev/null 2>&1;echo $?
+          top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
+          if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
+          key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
+          for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
+          set +x
+          git status
+          # git add ${{ vars.FG_COMPOSE_TARGET }}
+          # git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
+          # git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
+          # git status
 
+      # Mirror repo to our local modification directory
       - name: mirror-repository
         # You may pin to the exact commit or the version.
         # uses: yesolutions/mirror-action@082a9611ed4b64c796245a62b34584ee2ded6833
