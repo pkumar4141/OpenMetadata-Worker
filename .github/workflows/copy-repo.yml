@@ -21,7 +21,9 @@ jobs:
           echo "FG_USERNAME: ${{ vars.FG_USERNAME }}"
           echo "FG_DOMAIN: ${{ vars.FG_DOMAIN }}"
           echo "FG_COMPOSE_TARGET: ${{ vars.FG_COMPOSE_TARGET }}"
+          ls -laR ${GITHUB_WORKSPACE}
           ls -la ${GITHUB_WORKSPACE}/../
+          env | sort
 
       - uses: actions/checkout@v3
         with:
@@ -32,6 +34,7 @@ jobs:
 
       - name: "Show: Info"
         run: |
+          ls -laR ${GITHUB_WORKSPACE}
           ls -la ${GITHUB_WORKSPACE}/../
           env | sort
   
