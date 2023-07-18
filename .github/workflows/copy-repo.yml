@@ -1,4 +1,4 @@
-name: "Worker: Copy Mirror to Work Repo"
+name: "Worker: Mirror Copy to Work Repo"
 
 on:
   workflow_run:
@@ -90,40 +90,3 @@ jobs:
           #GIT_PUSH_ARGS: # optional, default is --tags --force --prune
           # set to "true" to enable debug mode
           DEBUG: "true" # optional, default is false
-
-      # Checkout our local mirror
-      - uses: actions/checkout@v3
-        with:
-          repository: Jason-Clark-FG/OpenMetadata-FG
-          fetch-depth: 0
-
-      # Show Info
-      - name: "Show: Info"
-        run: |
-          ls -la ${GITHUB_WORKSPACE}/
-          ls -la ${GITHUB_WORKSPACE}/../
-          ls -la ${GITHUB_WORKSPACE}/../../
-          env | sort
-
-      # Modify the target docker-conpose file
-      - name: Perform Modification
-        run: |
-          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
-          git config --global user.name "${{ vars.FG_USER }}"
-          git status
-          git pull
-          git switch "${{ vars.RELEASE_BRANCH }}"
-          git status
-          git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
-          set -x
-          which yq >/dev/null 2>&1;echo $?
-          top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
-          if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
-          key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
-          for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
-          set +x
-          git status
-          git add ${{ vars.FG_COMPOSE_TARGET }}
-          git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
-          git push --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
-          git status
