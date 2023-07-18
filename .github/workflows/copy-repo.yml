@@ -14,12 +14,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Info
+        run: |
+          echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+          echo "FG_DOMAIN: ${{ vars.FG_DOMAIN }}"
+
       - uses: actions/checkout@v3
         with:
           repository: Jason-Clark-FG/OpenMetadata-Mirror
           # path: OpenMetadata
           fetch-depth: 0
           # token: $${{ secrets.GIT_TOKEN }}
+
+      - name: Perform Modification
+        run: |
+          git config --global user.email "${GITHUB_ACTOR}@${FG_DOMAIN}"
+          git config --global user.name "${GITHUB_ACTOR}"
+          git status
+          git pull
+          git switch "$RELEASE_BRANCH"
+          git status
+          git switch -c "${RELEASE_BRANCH}-FG"
+          src/openmetadata-modify-compose.sh docker/docker-compose-quickstart/docker-compose.yml
+          git status
+          git add docker/docker-compose-quickstart/docker-compose.yml
+          git commit -m "chore: Modify docker/docker-compose-quickstart/docker-compose.yml"
+          git push -u origin "${RELEASE_BRANCH}-FG"
+          git status
+
       - name: mirror-repository
         # You may pin to the exact commit or the version.
         # uses: yesolutions/mirror-action@082a9611ed4b64c796245a62b34584ee2ded6833
