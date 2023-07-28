@@ -31,6 +31,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
+        repository: Jason-Clark-FG/OpenMetadata-FG
+        fetch-depth: 0
+        ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+        # token: ${{ secrets.FG_READONLY_TOKEN }}
         ref: "${{ vars.RELEASE_BRANCH }}-FG"
 
     - name: Setup Docker buildx
