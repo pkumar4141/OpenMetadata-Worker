@@ -51,10 +51,7 @@ jobs:
           git pull
           git switch "${{ vars.RELEASE_BRANCH }}"
           git status
-          # https://iridiumcao.github.io/git/verify_existence_git_branch.html
-          exists_branch="$(git ls-remote --heads origin "${{ vars.RELEASE_BRANCH }}-FG")"
-          if [ -n "${exists_branch}" ];then git branch -D "${{ vars.RELEASE_BRANCH }}-FG";fi
-          git switch -c "${{ vars.RELEASE_BRANCH }}-FG"
+          git switch -C "${{ vars.RELEASE_BRANCH }}-FG"
           set -x
           which yq >/dev/null 2>&1;echo $?
           compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
