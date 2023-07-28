@@ -35,7 +35,7 @@ jobs:
     - name: Checkout repository 1
       uses: actions/checkout@v3
       with:
-        path: self
+        path: "self"
 
     - name: Checkout repository 2
       uses: actions/checkout@v3
@@ -45,7 +45,13 @@ jobs:
         ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
         # token: ${{ secrets.FG_READONLY_TOKEN }}
         ref: "${{ vars.RELEASE_BRANCH }}-FG"
-        path: OpenMetadata-FG
+        path: "OpenMetadata-FG"
+
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE} | grep ':$'
+        env | sort
 
     - name: Setup Docker buildx
       uses: docker/setup-buildx-action@v2.5.0
@@ -81,9 +87,9 @@ jobs:
       uses: docker/build-push-action@v4.0.0
       with:
         context: ${GITHUB_WORKSPACE}/OpenMetadata-FG/.
-        # file: ./docker/mysql/Dockerfile_mysql
+        # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/mysql/Dockerfile_mysql
         file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/docker-compose-quickstart/Dockerfile
-        # file: ./ingestion/Dockerfile
+        # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/ingestion/Dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -120,4 +126,4 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: sarif.output.json
-        checkout_path: self
+        checkout_path: "self"
