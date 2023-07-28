@@ -26,6 +26,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      security-events: write
+      actions: read
       contents: read
       packages: write
 
@@ -105,6 +107,7 @@ jobs:
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
 
+    # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
     - name: "Docker Scout: Upload SARIF result"
       id: upload-sarif
       if: ${{ github.event_name != 'pull_request_target' }}
