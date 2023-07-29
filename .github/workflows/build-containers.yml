@@ -86,7 +86,7 @@ jobs:
       id: build-and-push
       uses: docker/build-push-action@v4.0.0
       with:
-        context: ${GITHUB_WORKSPACE}/OpenMetadata-FG/.
+        context: ${GITHUB_WORKSPACE}/OpenMetadata-FG/
         # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/mysql/Dockerfile_mysql
         file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/docker-compose-quickstart/Dockerfile
         # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/ingestion/Dockerfile
