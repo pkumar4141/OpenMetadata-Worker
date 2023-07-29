@@ -89,7 +89,7 @@ jobs:
         # context: ${GITHUB_WORKSPACE}/OpenMetadata-FG/
         context: .
         # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/mysql/Dockerfile_mysql
-        file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/docker/docker-compose-quickstart/Dockerfile
+        file: ./docker/docker-compose-quickstart/Dockerfile
         # file: ${GITHUB_WORKSPACE}/OpenMetadata-FG/ingestion/Dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
