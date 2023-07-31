@@ -32,12 +32,7 @@ jobs:
       packages: write
 
     steps:
-    - name: Checkout repository 1
-      uses: actions/checkout@v3
-      with:
-        path: "self"
-
-    - name: Checkout repository 2
+    - name: Checkout repository
       uses: actions/checkout@v3
       with:
         repository: Jason-Clark-FG/OpenMetadata-FG
@@ -45,7 +40,7 @@ jobs:
         ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
         # token: ${{ secrets.FG_READONLY_TOKEN }}
         ref: "${{ vars.RELEASE_BRANCH }}-FG"
-        path: "OpenMetadata-FG"
+        # path: "OpenMetadata-FG"
 
     # Show Info
     - name: "Show: Info"
@@ -119,6 +114,11 @@ jobs:
         sarif-file: sarif.output.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
+
+    - name: Checkout Self
+      uses: actions/checkout@v3
+      with:
+        path: "self"
 
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
     - name: "Docker Scout: Upload SARIF result"
