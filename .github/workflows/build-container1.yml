@@ -131,7 +131,8 @@ jobs:
       uses: docker/scout-action@v0.20.0
       with:
         command: cves
-        image: ${{ steps.meta.outputs.tags }}
+        # image: ${{ steps.meta.outputs.tags }}
+        image: ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
         sarif-file: output1.sarif.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
