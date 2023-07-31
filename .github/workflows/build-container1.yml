@@ -111,6 +111,12 @@ jobs:
     #   run: |
     #     mkdir -p sarifs
 
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE}/../ | grep ':$'
+        env | sort
+
     - name: "Docker Scout: Analyze for critical and high CVEs"
       id: docker-scout-cves
       if: ${{ github.event_name != 'pull_request_target' }}
