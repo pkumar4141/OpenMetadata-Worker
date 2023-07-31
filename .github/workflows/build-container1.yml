@@ -118,7 +118,7 @@ jobs:
       with:
         command: cves
         image: ${{ steps.meta.outputs.tags }}
-        sarif-file: sarif.output1.json
+        sarif-file: output1.sarif.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
 
