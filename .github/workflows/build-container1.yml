@@ -93,10 +93,10 @@ jobs:
         file: ${{ env.IMAGE_FILE }}
         push: ${{ github.event_name != 'pull_request' }}
         # tags: ${{ steps.meta.outputs.tags }}
-        tags:
+        tags: |
           ${{ env.IMAGE_NAME }}:stable
           ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
-        labels:
+        labels: |
           ${{ steps.meta.outputs.labels }}
           ${{ env.IMAGE_BASENAME }}
         cache-from: type=gha
