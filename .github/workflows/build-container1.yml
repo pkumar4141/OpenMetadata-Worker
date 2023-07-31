@@ -106,10 +106,10 @@ jobs:
     #     only-severities: critical,high
     #     token: ${{ secrets.DOCKER_PAT }}
 
-    # Create directory
-    - name: "Add Directory"
-      run: |
-        mkdir -p sarifs
+    # # Create directory
+    # - name: "Add Directory"
+    #   run: |
+    #     mkdir -p sarifs
 
     - name: "Docker Scout: Analyze for critical and high CVEs"
       id: docker-scout-cves
@@ -118,7 +118,7 @@ jobs:
       with:
         command: cves
         image: ${{ steps.meta.outputs.tags }}
-        sarif-file: sarifs/sarif.output1.json
+        sarif-file: sarif.output1.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
 
@@ -134,5 +134,5 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         # sarif_file: sarif.output1.json
-        sarif_file: sarifs
+        sarif_file: .
         checkout_path: "self"
