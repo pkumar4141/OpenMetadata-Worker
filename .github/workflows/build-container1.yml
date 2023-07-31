@@ -118,7 +118,7 @@ jobs:
       with:
         command: cves
         image: ${{ steps.meta.outputs.tags }}
-        sarif-file: ${GITHUB_WORKSPACE}/output1.sarif.json
+        sarif-file: $GITHUB_WORKSPACE/output1.sarif.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
 
@@ -134,5 +134,5 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         # sarif_file: output1.sarif.json
-        sarif_file: ${GITHUB_WORKSPACE}/
+        sarif_file: $GITHUB_WORKSPACE/
         checkout_path: "self"
