@@ -26,6 +26,7 @@ env:
   IMAGE_FILE: "./docker/mysql/Dockerfile_mysql"
   # IMAGE_FILE: "./docker/docker-compose-quickstart/Dockerfile"
   # IMAGE_FILE: "./ingestion/Dockerfile"
+  IMAGE_CURRENT_LABEL: "latest"
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
 jobs:
@@ -38,13 +39,7 @@ jobs:
       packages: write
 
     steps:
-    - name: Additional Variables
-      run: |
-        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
-    - name: Show Additional Variables
-      run: |
-        echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
-
+    # Checkout
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
@@ -55,12 +50,18 @@ jobs:
         ref: "${{ vars.RELEASE_BRANCH }}-FG"
         # path: "OpenMetadata-FG"
 
+    # Ref: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-writing-an-environment-variable-to-github_env
+    - name: Additional Variables
+      run: |
+        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+
     # Show Info
     - name: "Show: Info"
       run: |
         ls -lDR ${GITHUB_WORKSPACE} | grep ':$'
         env | sort
 
+    # Docker Buildx
     - name: Setup Docker buildx
       uses: docker/setup-buildx-action@v2.5.0
 
@@ -101,12 +102,12 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         # tags: ${{ steps.meta.outputs.tags }}
         tags: |
-          ${{ env.IMAGE_NAME }}:stable
+          ${{ env.IMAGE_NAME }}:${{ env.IMAGE_CURRENT_LABEL }}
           ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
         labels: |
           ${{ steps.meta.outputs.labels }}
-          "org.opencontainers.image.title"=${{ env.IMAGE_BASENAME }}
-          "org.opencontainers.image.url"="https://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          org.opencontainers.image.title=${{ env.IMAGE_BASENAME }}
+          org.opencontainers.image.url=https://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -121,11 +122,6 @@ jobs:
     #     ignore-unchanged: true
     #     only-severities: critical,high
     #     token: ${{ secrets.DOCKER_PAT }}
-
-    # # Create directory
-    # - name: "Add Directory"
-    #   run: |
-    #     mkdir -p sarifs
 
     # Show Info
     - name: "Show: Info"
