@@ -40,7 +40,9 @@ jobs:
     steps:
     - name: Additional Variables
       run: |
-        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+    - name: Show Additional Variables
+      run: |
         echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
 
     - name: Checkout repository
