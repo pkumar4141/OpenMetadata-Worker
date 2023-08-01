@@ -10,6 +10,10 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
+  # IMAGE_BASENAME: "fg-openmetadata-db"
+  IMAGE_BASENAME: "fg-openmetadata-server"
+  # IMAGE_BASENAME: "fg-openmetadata-ingestion"
+  # IMAGE_NAME: ${{ github.repository }}
   # IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-db"
   IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-server"
   # IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-ingestion"
@@ -80,10 +84,21 @@ jobs:
         context: .
         file: ${{ env.IMAGE_FILE }}
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        # tags: ${{ steps.meta.outputs.tags }}
+        tags: |
+          ${{ env.IMAGE_NAME }}:stable
+          ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
+        labels: |
+          ${{ steps.meta.outputs.labels }}
+          ${{ env.IMAGE_BASENAME }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE}/../ | grep ':$'
+        env | sort
 
     - name: "Docker Scout: Analyze for critical and high CVEs"
       id: docker-scout-cves
@@ -91,8 +106,9 @@ jobs:
       uses: docker/scout-action@v0.20.0
       with:
         command: cves
-        image: ${{ steps.meta.outputs.tags }}
-        sarif-file: sarif.output.json
+        # image: ${{ steps.meta.outputs.tags }}
+        image: ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
+        sarif-file: output2.sarif.json
         summary: true
 
     - name: Checkout Self
@@ -106,5 +122,5 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: sarif.output.json
+        sarif_file: output2.sarif.json
         checkout_path: "self"
