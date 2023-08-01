@@ -105,7 +105,8 @@ jobs:
           ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
         labels: |
           ${{ steps.meta.outputs.labels }}
-          ${{ env.IMAGE_BASENAME }}
+          "org.opencontainers.image.title"=${{ env.IMAGE_BASENAME }}
+          "org.opencontainers.image.url"="https://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
