@@ -1,0 +1,82 @@
+name: "Worker: Build Container 1"
+
+on:
+  workflow_run:
+    workflows: ["Worker: Modify Work Repo"]
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  IMAGE_REGISTRY_1: docker.getcollate.io
+  IMAGE_REGISTRY_2: docker.elastic.co
+  IMAGE_OWNER_1: openmetadata
+  IMAGE_OWNER_2: elasticsearch
+  IMAGE_NAME_1: db
+  IMAGE_NAME_2: ingestion
+  IMAGE_NAME_3: server
+  IMAGE_NAME_4: elasticsearch
+  IMAGE_TAG_1: "1.1.0"
+  IMAGE_TAG_2: "7.16.3"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+      packages: write
+
+    steps:
+    # Checkout
+    - name: Checkout Self
+      uses: actions/checkout@v3
+      # with:
+      #   path: "self"
+
+    # Ref: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-writing-an-environment-variable-to-github_env
+    - name: Additional Variables
+      run: |
+        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+        # "IMAGE_TAG_2=$(yq '(.services.elasticsearch.image | split(":"))[1]' ${{ vars.FG_COMPOSE_TARGET }})" >> $GITHUB_ENV
+
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE} | grep ':$'
+        env | sort
+
+    # Docker Buildx
+    - name: Setup Docker buildx
+      uses: docker/setup-buildx-action@v2.5.0
+
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE}/../ | grep ':$'
+        env | sort
+
+    - name: "Mend: Scan Images"
+      id: mend-cli-scan-1
+      if: ${{ github.event_name != 'pull_request_target' }}
+      run: |
+        curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_1 }}.sarif.json --format sarif
+        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_2 }}.sarif.json --format sarif
+        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_3 }}.sarif.json --format sarif
+        mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }} --filename reports/${{ env.IMAGE_NAME_4 }}.sarif.json --format sarif
+      env:
+        MEND_URL: ${{ vars.MEND_URL }}
+        MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
+        MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
+
+    # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
+    - name: "Mend: Upload SARIF result"
+      id: upload-sarif
+      if: ${{ github.event_name != 'pull_request_target' }}
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        category: "Mend Image SCA"
+        sarif_file: reports
+        # checkout_path: "self"
