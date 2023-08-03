@@ -63,13 +63,13 @@ jobs:
       run: |
         curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }}"
-        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }} --filename ../results/${{ env.IMAGE_NAME_1 }}.sarif.json --format sarif --no-color --no-progress
+        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }} --filename ./${{ env.IMAGE_NAME_1 }}.sarif.json --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }}"
-        # mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename ../results/${{ env.IMAGE_NAME_2 }}.sarif.json --format sarif --no-color --no-progress
+        # mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename ./${{ env.IMAGE_NAME_2 }}.sarif.json --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }}"
-        # mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }} --filename ../results/${{ env.IMAGE_NAME_3 }}.sarif.json --format sarif --no-color --no-progress
+        # mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }} --filename ./${{ env.IMAGE_NAME_3 }}.sarif.json --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }}"
-        # mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }} --filename ../results/${{ env.IMAGE_NAME_4 }}.sarif.json --format sarif --no-color --no-progress
+        # mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }} --filename ./${{ env.IMAGE_NAME_4 }}.sarif.json --format sarif --no-color --no-progress
       env:
         MEND_URL: ${{ vars.MEND_URL }}
         MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
@@ -88,5 +88,5 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         category: "Mend Image SCA"
-        sarif_file: '../results'
+        sarif_file: '.'
         # checkout_path: "self"
