@@ -9,6 +9,7 @@ on:
 
 env:
   MEND_CONFIG_FILE: ".whitesource"
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   build:
