@@ -41,24 +41,26 @@ jobs:
       # Show Info
       - name: "Show: Info"
         run: |
+          echo "REPO_DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)" >> $GITHUB_ENV
           ls -la ${GITHUB_WORKSPACE}/
           ls -la ${GITHUB_WORKSPACE}/../
           ls -la ${GITHUB_WORKSPACE}/../../
           env | sort
 
       # Modify the target docker-conpose file
-      - name: Perform Modification
+      - name: Perform Mend Modification
         run: |
           git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
           git config --global user.name "${{ vars.FG_USER }}"
           git status
           # git switch ${{ github.event.repository.default_branch }}
-          git switch $(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)
+          git switch ${{ env.REPO_DEFAULT_BRANCH }}
           git pull
           set -x
           which jq >/dev/null 2>&1;echo $?
           # Whitesource (Mend.io) template
-          echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq ".scanSettings.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\" | .scanSettingsSAST.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
+          # echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq ".scanSettings.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\" | .scanSettingsSAST.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
+          echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq "(.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[1],.scanSettingsSAST.baseBranches[1]) |= \"${{ env.REPO_DEFAULT_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
           set +x
           git status
           git add ./${{ env.MEND_CONFIG_FILE }}
@@ -67,7 +69,7 @@ jobs:
           git status
 
       # Modify the target docker-conpose file
-      - name: Perform Modification
+      - name: Perform Compose Modification
         run: |
           git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
           git config --global user.name "${{ vars.FG_USER }}"
