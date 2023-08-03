@@ -78,7 +78,7 @@ jobs:
     # Show Info
     - name: "Show: Info"
       run: |
-        ls -lR ${GITHUB_WORKSPACE}'
+        ls -lR ${GITHUB_WORKSPACE}
 
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
     - name: "Mend: Upload SARIF result"
