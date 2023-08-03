@@ -61,7 +61,7 @@ jobs:
       id: mend-cli-scan-1
       if: ${{ github.event_name != 'pull_request_target' }}
       run: |
-        curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+        curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_1 }}.sarif.json --format sarif
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_2 }}.sarif.json --format sarif
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }} --filename reports/${{ env.IMAGE_NAME_3 }}.sarif.json --format sarif
@@ -70,6 +70,12 @@ jobs:
         MEND_URL: ${{ vars.MEND_URL }}
         MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
         MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
+
+    # Show Info
+    - name: "Show: Info"
+      run: |
+        ls -lDR ${GITHUB_WORKSPACE} | grep ':$'
+        env | sort
 
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
     - name: "Mend: Upload SARIF result"
