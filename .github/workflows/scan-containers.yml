@@ -1,4 +1,4 @@
-name: "Worker: Build Container 1"
+name: "Worker: Scan Containers"
 
 on:
   workflow_run:
