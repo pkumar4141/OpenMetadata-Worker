@@ -36,10 +36,10 @@ jobs:
       #   path: "self"
 
     # Ref: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-writing-an-environment-variable-to-github_env
-    - name: Additional Variables
-      run: |
-        echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
-        # "IMAGE_TAG_2=$(yq '(.services.elasticsearch.image | split(":"))[1]' ${{ vars.FG_COMPOSE_TARGET }})" >> $GITHUB_ENV
+    # - name: Additional Variables
+    #   run: |
+    #     echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+    #     # "IMAGE_TAG_2=$(yq '(.services.elasticsearch.image | split(":"))[1]' ${{ vars.FG_COMPOSE_TARGET }})" >> $GITHUB_ENV
 
     # Show Info
     - name: "Show: Info"
