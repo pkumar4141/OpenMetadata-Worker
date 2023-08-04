@@ -65,7 +65,7 @@ jobs:
           git status
           git add ./${{ env.MEND_CONFIG_FILE }}
           git commit -m "chore: Inject ${{ env.MEND_CONFIG_FILE }}"
-          git push
+          git push --force
           git status
 
       # Modify the target docker-conpose file
