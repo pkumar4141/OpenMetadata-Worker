@@ -85,6 +85,8 @@ jobs:
           if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
           key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '2-')
           for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
+          # Allow MySQL Password Override
+          yq -i '.services.mysql.environment.MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD:-password}"' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix
           yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
           set +x
