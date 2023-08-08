@@ -16,7 +16,7 @@ env:
   IMAGE_NAME_2: ingestion
   IMAGE_NAME_3: server
   IMAGE_NAME_4: elasticsearch
-  IMAGE_TAG_1: "1.1.0"
+  IMAGE_TAG_1: "1.1.1"
   IMAGE_TAG_2: "7.16.3"
 
 jobs:
