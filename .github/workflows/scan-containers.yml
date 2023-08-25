@@ -80,70 +80,70 @@ jobs:
       run: |
         ls -lR ${GITHUB_WORKSPACE}
 
-    # Ref: https://github.com/microsoft/sarif-actions
-    - name: SARIF Multitool 1
-      id: sarif-multitool-1
-      uses: microsoft/sarif-actions@v0.1
-      with:
-        # Command to be sent to SARIF Multitool
-        command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_1 }}.sarif'
     # # Ref: https://github.com/microsoft/sarif-actions
-    - name: SARIF Multitool 2
-      id: sarif-multitool-2
-      uses: microsoft/sarif-actions@v0.1
-      with:
-        # Command to be sent to SARIF Multitool
-        command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_2 }}.sarif'
-    # Ref: https://github.com/microsoft/sarif-actions
-    - name: SARIF Multitool 3
-      id: sarif-multitool-3
-      uses: microsoft/sarif-actions@v0.1
-      with:
-        # Command to be sent to SARIF Multitool
-        command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_3 }}.sarif'
-    # Ref: https://github.com/microsoft/sarif-actions
-    - name: SARIF Multitool 4
-      id: sarif-multitool-4
-      uses: microsoft/sarif-actions@v0.1
-      with:
-        # Command to be sent to SARIF Multitool
-        command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_4 }}.sarif'
+    # - name: SARIF Multitool 1
+    #   id: sarif-multitool-1
+    #   uses: microsoft/sarif-actions@v0.1
+    #   with:
+    #     # Command to be sent to SARIF Multitool
+    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_1 }}.sarif'
+    # # # Ref: https://github.com/microsoft/sarif-actions
+    # - name: SARIF Multitool 2
+    #   id: sarif-multitool-2
+    #   uses: microsoft/sarif-actions@v0.1
+    #   with:
+    #     # Command to be sent to SARIF Multitool
+    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_2 }}.sarif'
+    # # Ref: https://github.com/microsoft/sarif-actions
+    # - name: SARIF Multitool 3
+    #   id: sarif-multitool-3
+    #   uses: microsoft/sarif-actions@v0.1
+    #   with:
+    #     # Command to be sent to SARIF Multitool
+    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_3 }}.sarif'
+    # # Ref: https://github.com/microsoft/sarif-actions
+    # - name: SARIF Multitool 4
+    #   id: sarif-multitool-4
+    #   uses: microsoft/sarif-actions@v0.1
+    #   with:
+    #     # Command to be sent to SARIF Multitool
+    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_4 }}.sarif'
 
-    # Currently mend image outputs invalid SARIF, so we will skip this
-    # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
-    - name: "Mend: Upload SARIF result 1"
-      id: upload-sarif-1
-      if: ${{ github.event_name != 'pull_request_target' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_1 }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_1 }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 2"
-      id: upload-sarif-2
-      if: ${{ github.event_name != 'pull_request_target' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_2 }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_2 }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 3"
-      id: upload-sarif-3
-      if: ${{ github.event_name != 'pull_request_target' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_3 }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_3 }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 4"
-      id: upload-sarif-4
-      if: ${{ github.event_name != 'pull_request_target' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_4 }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_4 }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
+    # # Currently mend image outputs invalid SARIF, so we will skip this
+    # # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
+    # - name: "Mend: Upload SARIF result 1"
+    #   id: upload-sarif-1
+    #   if: ${{ github.event_name != 'pull_request_target' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_1 }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_1 }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 2"
+    #   id: upload-sarif-2
+    #   if: ${{ github.event_name != 'pull_request_target' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_2 }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_2 }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 3"
+    #   id: upload-sarif-3
+    #   if: ${{ github.event_name != 'pull_request_target' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_3 }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_3 }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 4"
+    #   id: upload-sarif-4
+    #   if: ${{ github.event_name != 'pull_request_target' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_4 }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_4 }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
