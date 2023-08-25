@@ -64,8 +64,8 @@ jobs:
         curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }}"
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_1 }}.sarif --format sarif --no-color --no-progress
-        echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }}"
-        mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_2 }}.sarif --format sarif --no-color --no-progress
+        # echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }}"
+        # mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_2 }}.sarif --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }}"
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_3 }}.sarif --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }}"
@@ -82,11 +82,39 @@ jobs:
 
     # Currently mend image outputs invalid SARIF, so we will skip this
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
-    - name: "Mend: Upload SARIF result"
-      id: upload-sarif
+    - name: "Mend: Upload SARIF result 1"
+      id: upload-sarif-1
       if: ${{ github.event_name != 'pull_request_target' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: "Mend Image SCA"
-        sarif_file: './reports'
+        category: mend-sca
+        sarif_file: './reports/${{ env.IMAGE_NAME_1 }}.sarif'
+        wait-for-processing: false
+        # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 2"
+    #   id: upload-sarif-2
+    #   if: ${{ github.event_name != 'pull_request_target' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_2 }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    - name: "Mend: Upload SARIF result 3"
+      id: upload-sarif-3
+      if: ${{ github.event_name != 'pull_request_target' }}
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        category: mend-sca
+        sarif_file: './reports/${{ env.IMAGE_NAME_3 }}.sarif'
+        wait-for-processing: false
+        # checkout_path: "self"
+    - name: "Mend: Upload SARIF result 4"
+      id: upload-sarif-4
+      if: ${{ github.event_name != 'pull_request_target' }}
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        category: mend-sca
+        sarif_file: './reports/${{ env.IMAGE_NAME_4 }}.sarif'
+        wait-for-processing: false
         # checkout_path: "self"
