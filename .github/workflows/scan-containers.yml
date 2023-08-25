@@ -80,6 +80,35 @@ jobs:
       run: |
         ls -lR ${GITHUB_WORKSPACE}
 
+    # Ref: https://github.com/microsoft/sarif-actions
+    - name: SARIF Multitool 1
+      id: sarif-multitool-1
+      uses: microsoft/sarif-actions@v0.1
+      with:
+        # Command to be sent to SARIF Multitool
+        command: 'validate ./reports/${{ env.IMAGE_NAME_1 }}.sarif'
+    # # Ref: https://github.com/microsoft/sarif-actions
+    # - name: SARIF Multitool 2
+    #   id: sarif-multitool-2
+    #   uses: microsoft/sarif-actions@v0.1
+    #   with:
+    #     # Command to be sent to SARIF Multitool
+    #     command: 'validate ./reports/${{ env.IMAGE_NAME_2 }}.sarif'
+    # Ref: https://github.com/microsoft/sarif-actions
+    - name: SARIF Multitool 3
+      id: sarif-multitool-3
+      uses: microsoft/sarif-actions@v0.1
+      with:
+        # Command to be sent to SARIF Multitool
+        command: 'validate ./reports/${{ env.IMAGE_NAME_3 }}.sarif'
+    # Ref: https://github.com/microsoft/sarif-actions
+    - name: SARIF Multitool 4
+      id: sarif-multitool-4
+      uses: microsoft/sarif-actions@v0.1
+      with:
+        # Command to be sent to SARIF Multitool
+        command: 'validate ./reports/${{ env.IMAGE_NAME_4 }}.sarif'
+
     # Currently mend image outputs invalid SARIF, so we will skip this
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
     - name: "Mend: Upload SARIF result 1"
