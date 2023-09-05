@@ -107,7 +107,7 @@ jobs:
           git status
           git add ${{ vars.FG_COMPOSE_TARGET }}
           git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
-          git push --force --set-upstream origin "${{ vars.RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ vars.DEV_RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
           git status
           git switch -C "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
           git push --force --set-upstream origin "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
