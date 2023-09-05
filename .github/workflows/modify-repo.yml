@@ -61,7 +61,7 @@ jobs:
             which jq >/dev/null 2>&1;echo $?
             # Whitesource (Mend.io) template
             # echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq ".scanSettings.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\" | .scanSettingsSAST.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
-            echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq "(.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[1],.scanSettingsSAST.baseBranches[1]) |= \"${{ env.REPO_DEFAULT_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
+            echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq "(.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.PROD_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.DEV_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[1],.scanSettingsSAST.baseBranches[1]) |= \"${{ env.REPO_DEFAULT_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
             set +x
             git status
             git add ./${{ env.MEND_CONFIG_FILE }}
@@ -71,15 +71,16 @@ jobs:
           git status
 
       # Modify the target docker-conpose file
-      - name: Perform Compose Modification
+      - name: Perform Compose Modification DEV
+        id: compose-mod-dev
         run: |
           git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
           git config --global user.name "${{ vars.FG_USER }}"
           git status
           git pull
-          git switch "${{ vars.RELEASE_BRANCH }}"
+          git switch "${{ vars.DEV_RELEASE_BRANCH }}"
           git status
-          git switch -C "${{ vars.RELEASE_BRANCH }}-FG"
+          git switch -C "${{ vars.DEV_RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
           set -x
           which yq >/dev/null 2>&1;echo $?
           compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
@@ -106,5 +107,51 @@ jobs:
           git status
           git add ${{ vars.FG_COMPOSE_TARGET }}
           git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
-          git push --force --set-upstream origin "${{ vars.RELEASE_BRANCH }}-FG"
+          git push --force --set-upstream origin "${{ vars.RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
+          git status
+          git switch -C "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git status
+
+      # Modify the target docker-conpose file
+      - name: Perform Compose Modification PRD
+        id: compose-mod-prd
+        run: |
+          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+          git config --global user.name "${{ vars.FG_USER }}"
+          git status
+          git pull
+          git switch "${{ vars.PROD_RELEASE_BRANCH }}"
+          git status
+          git switch -C "${{ vars.PROD_RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
+          set -x
+          which yq >/dev/null 2>&1;echo $?
+          compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
+          top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
+          if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
+          # key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-')
+          key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-' | grep -v execute-migrate-all)
+          for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
+          # yq -i ".services.execute-migrate-all.restart = \"on-failure\"" ${{ vars.FG_COMPOSE_TARGET }}
+          # Allow MySQL Password Override
+          yq -i '.services.mysql.environment.MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD:-password}"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.mysql.volumes[1] |= "./config/mysql-script.sql:/docker-entrypoint-initdb.d/mysql-script.sql"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Add Server Settings
+          yq -i '.services.openmetadata-server.volumes[0] |= "./docker-volume/jwtkeys:/etc/openmetadata/jwtkeys"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i '.services.execute-migrate-all.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i '.services.openmetadata-server.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Add Airflow Settings
+          yq -i '.services.ingestion.environment.AIRFLOW_ADMIN_USER = "${AIRFLOW_ADMIN_USER:-admin}" | .services.ingestion.environment.AIRFLOW_ADMIN_PASSWORD = "${AIRFLOW_ADMIN_PASSWORD:-admin}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Elasticsearch Users
+          yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
+          # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
+          # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
+          set +x
+          git status
+          git add ${{ vars.FG_COMPOSE_TARGET }}
+          git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
+          git push --force --set-upstream origin "${{ vars.PROD_RELEASE_BRANCH }}-${{ vars.BRANCH_SUFFIX }}"
+          git status
+          git switch -C "${{ vars.PROD_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ vars.PROD_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
           git status
