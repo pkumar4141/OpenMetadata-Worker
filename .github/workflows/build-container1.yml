@@ -32,11 +32,15 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       security-events: write
       actions: read
       contents: read
       packages: write
+    strategy:
+      matrix:
+        release_branch: [${{ vars.DEV_RELEASE_BRANCH }}, ${{ vars.PROD_RELEASE_BRANCH }}]
 
     steps:
     # Checkout
@@ -46,9 +50,7 @@ jobs:
         repository: Jason-Clark-FG/OpenMetadata-FG
         fetch-depth: 0
         ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
-        # token: ${{ secrets.FG_READONLY_TOKEN }}
-        ref: "${{ vars.RELEASE_BRANCH }}-FG"
-        # path: "OpenMetadata-FG"
+        ref: "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
 
     # Ref: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-writing-an-environment-variable-to-github_env
     - name: Additional Variables
@@ -84,7 +86,7 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         labels: |
             # org.opencontainers.image.revision=${{ env.SHA }}
-            org.opencontainers.image.revision=${{ vars.RELEASE_BRANCH }}
+            org.opencontainers.image.revision=${{ matrix.release_branch }}
         tags: |
             type=edge,branch=$repo.default_branch
             type=semver,pattern=v{{version}}
@@ -103,7 +105,7 @@ jobs:
         # tags: ${{ steps.meta.outputs.tags }}
         tags: |
           ${{ env.IMAGE_NAME }}:${{ env.IMAGE_CURRENT_LABEL }}
-          ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
+          ${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
         labels: |
           ${{ steps.meta.outputs.labels }}
           org.opencontainers.image.title=${{ env.IMAGE_BASENAME }}
@@ -136,7 +138,7 @@ jobs:
       with:
         command: cves
         # image: ${{ steps.meta.outputs.tags }}
-        image: ${{ env.IMAGE_NAME }}:${{ vars.RELEASE_BRANCH }}
+        image: ${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
         sarif-file: output1.sarif.json
         summary: true
         # token: ${{ secrets.DOCKER_PAT }}
