@@ -27,13 +27,15 @@ jobs:
   # Ref: https://www.cynkra.com/blog/2020-12-23-dynamic-gha/
   # Ref: https://tomasvotruba.com/blog/2020/11/16/how-to-make-dynamic-matrix-in-github-actions/
   # Ref: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/#new-fromjson-method-in-expressions
+  # Ref: https://docs.github.com/en/actions/learn-github-actions/expressions#fromjson
   matrix:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "::set-output name=matrix::{\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]}"
+      run: echo "matrix={\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> "$GITHUB_OUTPUT"
 
   check-matrix:
     runs-on: ubuntu-latest
@@ -52,7 +54,6 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       security-events: write
       actions: read
