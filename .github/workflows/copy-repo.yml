@@ -2,7 +2,7 @@ name: "Worker: Mirror Copy to Work Repo"
 
 on:
   workflow_run:
-    workflows: ["Worker: Mirror 3rd Party to Local"]
+    workflows: ["Worker: Step 1 - Mirror 3rd Party to Local"]
     types:
       - completed
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
           env | sort
 
       # # Checkout self to target
-      # - uses: actions/checkout@v3
+      # - uses: actions/checkout@v4
       #   with:
       #     path: 'target'
 
@@ -47,7 +47,7 @@ jobs:
       #     ls -la ${GITHUB_WORKSPACE}/../target/
   
       # Checkout our local mirror
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: Jason-Clark-FG/OpenMetadata-Mirror
           # path: OpenMetadata

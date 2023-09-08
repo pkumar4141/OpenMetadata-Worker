@@ -1,4 +1,4 @@
-name: "Worker: Mirror 3rd Party to Local"
+name: "Worker: Step 1 - Mirror 3rd Party to Local"
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: open-metadata/OpenMetadata
           # path: OpenMetadata

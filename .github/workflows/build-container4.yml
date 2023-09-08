@@ -10,16 +10,7 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
-  # IMAGE_BASENAME: "fg-openmetadata-db"
-  # IMAGE_BASENAME: "fg-openmetadata-server"
-  # IMAGE_BASENAME: "fg-openmetadata-ingestion"
   IMAGE_BASENAME: "fg-elasticsearch"
-  # IMAGE_NAME: ${{ github.repository }}
-  # IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-db"
-  # IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-server"
-  # IMAGE_NAME: "${{ secrets.DOCKER_USER }}/fg-openmetadata-ingestion"
-  # IMAGE_FILE: "./docker/mysql/Dockerfile_mysql"
-  # IMAGE_FILE: "./docker/docker-compose-quickstart/Dockerfile"
   IMAGE_FILE: "./elasticsearch/Dockerfile"
   IMAGE_CURRENT_LABEL: "latest"
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
@@ -36,7 +27,12 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "matrix={\"release_branch\":[\"${{ vars.DEV_ES_RELEASE_BRANCH }}\",\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+      run: |
+        if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
+          echo "matrix={\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+        else
+          echo "matrix={\"release_branch\":[\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+        fi
 
   check-matrix:
     runs-on: ubuntu-latest
@@ -88,12 +84,12 @@ jobs:
 
     # Docker Buildx
     - name: Setup Docker buildx
-      uses: docker/setup-buildx-action@v2.5.0
+      uses: docker/setup-buildx-action@v2
 
     # Login against a Docker registry except on PR
     # https://github.com/docker/login-action
     - name: Log into registry ${{ env.REGISTRY }}
-      uses: docker/login-action@v2.1.0
+      uses: docker/login-action@v2
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ secrets.DOCKER_USER }}
@@ -104,7 +100,7 @@ jobs:
     # https://github.com/docker/metadata-action
     - name: Extract Docker metadata
       id: meta
-      uses: docker/metadata-action@v4.4.0
+      uses: docker/metadata-action@v4
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         labels: |
@@ -119,7 +115,7 @@ jobs:
     # https://github.com/docker/build-push-action
     - name: Build and push Docker image
       id: build-and-push
-      uses: docker/build-push-action@v4.0.0
+      uses: docker/build-push-action@v4
       with:
         context: ${{ env.IMAGE_PATH }}
         file: ${{ env.IMAGE_FILE }}
@@ -136,11 +132,6 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    # # Docker Build
-    # - name: Build the Elasticsearch Docker image
-    #   id: docker-build
-    #   run: docker build elasticsearch
-
     # Show Info
     - name: "Show: Info"
       run: |
@@ -150,7 +141,7 @@ jobs:
     - name: "Docker Scout: Analyze for critical and high CVEs"
       id: docker-scout-cves
       if: ${{ github.event_name != 'pull_request_target' }}
-      uses: docker/scout-action@v0.20.0
+      uses: docker/scout-action@v0.23.4
       with:
         command: cves
         # image: ${{ steps.meta.outputs.tags }}

@@ -9,8 +9,6 @@ on:
 
 env:
   MEND_CONFIG_FILE: ".whitesource"
-  DEV_ELASTICSEARCH_TAG: "7.17.12"
-  PROD_ELASTICSEARCH_TAG: "7.17.12"
   GH_TOKEN: ${{ github.token }}
 
 jobs:
@@ -34,7 +32,7 @@ jobs:
 
       # Checkout our local mirror
       # The public SSH keys for a host may be obtained using the utility `ssh-keyscan`. For example, `ssh-keyscan github.com`.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: Jason-Clark-FG/OpenMetadata-FG
           fetch-depth: 0
@@ -103,7 +101,7 @@ jobs:
           # Add Airflow Settings
           yq -i '.services.ingestion.environment.AIRFLOW_ADMIN_USER = "${AIRFLOW_ADMIN_USER:-admin}" | .services.ingestion.environment.AIRFLOW_ADMIN_PASSWORD = "${AIRFLOW_ADMIN_PASSWORD:-admin}"' ${{ vars.FG_COMPOSE_TARGET }}
           # Elasticsearch
-          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ env.DEV_ELASTICSEARCH_TAG }}")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ vars.DEV_ES_RELEASE_BRANCH }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
           # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
@@ -147,7 +145,7 @@ jobs:
           # Add Airflow Settings
           yq -i '.services.ingestion.environment.AIRFLOW_ADMIN_USER = "${AIRFLOW_ADMIN_USER:-admin}" | .services.ingestion.environment.AIRFLOW_ADMIN_PASSWORD = "${AIRFLOW_ADMIN_PASSWORD:-admin}"' ${{ vars.FG_COMPOSE_TARGET }}
           # Elasticsearch
-          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ env.PROD_ELASTICSEARCH_TAG }}")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ vars.PROD_ES_RELEASE_BRANCH }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
           # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
