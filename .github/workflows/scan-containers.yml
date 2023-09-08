@@ -75,9 +75,9 @@ jobs:
         mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.PROD_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_3 }}.sarif --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.IMAGE_TAG_2 }}"
         if [[ ${{ vars.DEV_ES_RELEASE_BRANCH }} != ${{ vars.PROD_ES_RELEASE_BRANCH }} ]];then
-          mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.DEV_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}.sarif --format sarif --no-color --no-progress
+          mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.DEV_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}.sarif --format sarif --no-color --no-progress
         fi
-        mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ env.PROD_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}.sarif --format sarif --no-color --no-progress
+        mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.PROD_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}.sarif --format sarif --no-color --no-progress
         echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.PROD_RELEASE_BRANCH }}"
         if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
           mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.DEV_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_2 }}.sarif --format sarif --no-color --no-progress
