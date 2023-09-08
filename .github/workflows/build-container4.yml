@@ -78,6 +78,7 @@ jobs:
     - name: Additional Variables
       run: |
         echo "IMAGE_NAME=${{ secrets.DOCKER_USER }}/${{ env.IMAGE_BASENAME }}" >> $GITHUB_ENV
+        echo "IMAGE_PATH=$(dirname ${{ env.IMAGE_FILE }})" >> $GITHUB_ENV
 
     # Show Info
     - name: "Show: Info"
@@ -120,7 +121,7 @@ jobs:
       id: build-and-push
       uses: docker/build-push-action@v4.0.0
       with:
-        context: .
+        context: ${{ env.IMAGE_PATH }}
         file: ${{ env.IMAGE_FILE }}
         platforms: linux/amd64
         push: ${{ github.event_name != 'pull_request' }}
@@ -134,6 +135,11 @@ jobs:
           org.opencontainers.image.url=https://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    # # Docker Build
+    # - name: Build the Elasticsearch Docker image
+    #   id: docker-build
+    #   run: docker build elasticsearch
 
     # Show Info
     - name: "Show: Info"
