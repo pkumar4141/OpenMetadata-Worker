@@ -1,8 +1,8 @@
-name: "Worker: Build Container 2"
+name: "Worker: Step 4.2 - Build Container 2"
 
 on:
   workflow_run:
-    workflows: ["Worker: Modify Work Repo"]
+    workflows: ["Worker: Step 3 - Modify Work Repo"]
     types:
       - completed
   workflow_dispatch:

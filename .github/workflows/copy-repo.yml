@@ -1,4 +1,4 @@
-name: "Worker: Mirror Copy to Work Repo"
+name: "Worker: Step 2 - Mirror Copy to Work Repo"
 
 on:
   workflow_run:

@@ -1,8 +1,8 @@
-name: "Worker: Modify Work Repo"
+name: "Worker: Step 3 - Modify Work Repo"
 
 on:
   workflow_run:
-    workflows: ["Worker: Mirror Copy to Work Repo"]
+    workflows: ["Worker: Step 2 - Mirror Copy to Work Repo"]
     types:
       - completed
   workflow_dispatch:
