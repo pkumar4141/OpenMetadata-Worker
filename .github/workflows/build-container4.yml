@@ -28,10 +28,10 @@ jobs:
     steps:
     - id: set-matrix
       run: |
-        if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
-          echo "matrix={\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+        if [[ ${{ vars.DEV_ES_RELEASE_BRANCH }} != ${{ vars.PROD_ES_RELEASE_BRANCH }} ]];then
+          echo "matrix={\"release_branch\":[\"${{ vars.DEV_ES_RELEASE_BRANCH }}\",\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
         else
-          echo "matrix={\"release_branch\":[\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+          echo "matrix={\"release_branch\":[\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
         fi
 
   check-matrix:
