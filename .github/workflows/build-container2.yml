@@ -153,7 +153,7 @@ jobs:
         command: cves
         # image: ${{ steps.meta.outputs.tags }}
         image: ${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
-        sarif-file: output2.sarif.json
+        sarif-file: ${{ env.IMAGE_BASENAME }}-${{ matrix.release_branch }}.sarif
         summary: true
 
     - name: Checkout Self
@@ -167,5 +167,5 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: output2.sarif.json
+        sarif_file: ${{ env.IMAGE_BASENAME }}-${{ matrix.release_branch }}.sarif
         checkout_path: "self"
