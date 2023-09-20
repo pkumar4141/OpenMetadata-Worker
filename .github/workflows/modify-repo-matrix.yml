@@ -24,7 +24,7 @@ jobs:
     steps:
     - id: set-matrix
       run: |
-        echo "matrix={\"target\":[\"dev\",\"prd\"]},{\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]},{\"release_name\":[\"${{ vars.DEV_RELEASE_NAME }}\",\"${{ vars.PROD_RELEASE_NAME }}\"]},{\"es_release_branch\":[\"${{ vars.DEV_ES_RELEASE_BRANCH }}\",\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+        echo "matrix={\"target\":[{\"name\":\"dev\",\"release_branch\":\"${{ vars.DEV_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.DEV_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.DEV_ES_RELEASE_BRANCH }}\"},{\"name\":\"prd\",\"release_branch\":\"${{ vars.PROD_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.PROD_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"}]}" >> $GITHUB_OUTPUT
 
   check-matrix:
     runs-on: ubuntu-latest
@@ -104,15 +104,15 @@ jobs:
           git status
 
       # Modify the target docker-conpose file
-      - name: Perform Compose Modification ${{ matrix.target }}
+      - name: Perform Compose Modification ${{ matrix.target.name }}
         run: |
           git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
           git config --global user.name "${{ vars.FG_USER }}"
           git status
           git pull
-          git switch "${{ matrix.release_branch }}"
+          git switch "${{ matrix.target.release_branch }}"
           git status
-          git switch -C "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
+          git switch -C "${{ matrix.target.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
           set -x
           which yq >/dev/null 2>&1;echo $?
           compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
@@ -135,7 +135,7 @@ jobs:
           yq -i '.services.ingestion.volumes += "./docker-volume/ingestion-entrypoint:/opt/airflow/entrypoint"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.ingestion.command[0] |= "/opt/airflow/entrypoint/entrypoint.sh"' ${{ vars.FG_COMPOSE_TARGET }}
           # Elasticsearch
-          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.target.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
           # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
@@ -143,8 +143,8 @@ jobs:
           git status
           git add ${{ vars.FG_COMPOSE_TARGET }}
           git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
-          git push --force --set-upstream origin "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ matrix.target.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
           git status
-          git switch -C "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
-          git push --force --set-upstream origin "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git switch -C "${{ matrix.target.release_name }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ matrix.target.release_name }}-${{ vars.BRANCH_SUFFIX }}"
           git status
