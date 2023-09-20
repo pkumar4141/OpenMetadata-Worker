@@ -1,0 +1,135 @@
+name: "Worker: Step 3 - Modify Work Repo"
+
+on:
+  workflow_run:
+    workflows: ["Worker: Step 2 - Mirror Copy to Work Repo"]
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  MEND_CONFIG_FILE: ".whitesource"
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  # Ref: https://www.cynkra.com/blog/2020-12-23-dynamic-gha/
+  # Ref: https://tomasvotruba.com/blog/2020/11/16/how-to-make-dynamic-matrix-in-github-actions/
+  # Ref: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/#new-fromjson-method-in-expressions
+  # Ref: https://docs.github.com/en/actions/learn-github-actions/expressions#fromjson
+  matrix:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - id: set-matrix
+      run: |
+        echo "matrix={\"target\":[\"dev\",\"prd\"],\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\",\"release_name\":[\"${{ vars.DEV_RELEASE_NAME }}\",\"${{ vars.PROD_RELEASE_NAME }}\"],\"es_release_branch\":[\"${{ vars.DEV_ES_RELEASE_BRANCH }}\",\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"}" >> $GITHUB_OUTPUT
+
+  build:
+    runs-on: ubuntu-latest
+    # if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    strategy:
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+
+    steps:
+      # Show Info
+      - name: "Show: Info"
+        run: |
+          echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+          echo "FG_USER: ${{ vars.FG_USER }}"
+          echo "FG_USERNAME: ${{ vars.FG_USERNAME }}"
+          echo "FG_DOMAIN: ${{ vars.FG_DOMAIN }}"
+          echo "FG_COMPOSE_TARGET: ${{ vars.FG_COMPOSE_TARGET }}"
+          ls -laR ${GITHUB_WORKSPACE}
+          ls -la ${GITHUB_WORKSPACE}/../
+          ls -la ${GITHUB_WORKSPACE}/../../
+          env | sort
+
+      # Checkout our local mirror
+      # The public SSH keys for a host may be obtained using the utility `ssh-keyscan`. For example, `ssh-keyscan github.com`.
+      - uses: actions/checkout@v4
+        with:
+          repository: Jason-Clark-FG/OpenMetadata-FG
+          fetch-depth: 0
+          ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          # token: ${{ secrets.FG_READONLY_TOKEN }}
+
+      # Show Info
+      - name: "Show: Info"
+        run: |
+          echo "REPO_DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)" >> $GITHUB_ENV
+          ls -la ${GITHUB_WORKSPACE}/
+          ls -la ${GITHUB_WORKSPACE}/../
+          ls -la ${GITHUB_WORKSPACE}/../../
+          env | sort
+
+      # Modify the target docker-conpose file
+      - name: Perform Mend Modification
+        run: |
+          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+          git config --global user.name "${{ vars.FG_USER }}"
+          git status
+          # git switch ${{ github.event.repository.default_branch }}
+          git switch ${{ env.REPO_DEFAULT_BRANCH }}
+          git pull
+          set -x
+          if [[ ! -e ./${{ env.MEND_CONFIG_FILE }} ]];then
+            which jq >/dev/null 2>&1;echo $?
+            # Whitesource (Mend.io) template
+            # echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq ".scanSettings.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\" | .scanSettingsSAST.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
+            echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":false}}}' | jq "(.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.PROD_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[1],.scanSettingsSAST.baseBranches[1]) |= \"${{ vars.DEV_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[2],.scanSettingsSAST.baseBranches[2]) |= \"${{ env.REPO_DEFAULT_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
+            set +x
+            git status
+            git add ./${{ env.MEND_CONFIG_FILE }}
+            git commit -m "chore: Inject ${{ env.MEND_CONFIG_FILE }}"
+            git push
+          fi
+          git status
+
+      # Modify the target docker-conpose file
+      - name: Perform Compose Modification ${{ matrix.target }}
+        run: |
+          git config --global user.email "${{ vars.FG_USERNAME }}@${{ vars.FG_DOMAIN }}"
+          git config --global user.name "${{ vars.FG_USER }}"
+          git status
+          git pull
+          git switch "${{ matrix.release_branch }}"
+          git status
+          git switch -C "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
+          set -x
+          which yq >/dev/null 2>&1;echo $?
+          compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
+          top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
+          if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
+          # key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-')
+          key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-' | grep -v execute-migrate-all)
+          for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
+          # yq -i ".services.execute-migrate-all.restart = \"on-failure\"" ${{ vars.FG_COMPOSE_TARGET }}
+          # Allow MySQL Password Override
+          yq -i '.services.mysql.environment.MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD:-password}"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.mysql.volumes[1] |= "./config/mysql-script.sql:/docker-entrypoint-initdb.d/mysql-script.sql"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Add Server Settings
+          yq -i '.services.openmetadata-server.volumes[0] |= "./docker-volume/jwtkeys:/etc/openmetadata/jwtkeys"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i '.services.execute-migrate-all.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i '.services.openmetadata-server.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Add Airflow Settings
+          yq -i '.services.ingestion.environment.AIRFLOW_ADMIN_USER = "${AIRFLOW_ADMIN_USER:-admin}" | .services.ingestion.environment.AIRFLOW_ADMIN_PASSWORD = "${AIRFLOW_ADMIN_PASSWORD:-admin}"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Ingestion
+          yq -i '.services.ingestion.volumes += "./docker-volume/ingestion-entrypoint:/opt/airflow/entrypoint"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.ingestion.command[0] |= "/opt/airflow/entrypoint/entrypoint.sh"' ${{ vars.FG_COMPOSE_TARGET }}
+          # Elasticsearch
+          yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
+          # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
+          # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
+          set +x
+          git status
+          git add ${{ vars.FG_COMPOSE_TARGET }}
+          git commit -m "chore: Modify ${{ vars.FG_COMPOSE_TARGET }}"
+          git push --force --set-upstream origin "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
+          git status
+          git switch -C "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git push --force --set-upstream origin "${{ vars.DEV_RELEASE_NAME }}-${{ vars.BRANCH_SUFFIX }}"
+          git status
