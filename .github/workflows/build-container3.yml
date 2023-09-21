@@ -2,7 +2,7 @@ name: "Worker: Step 4.2 - Build Container 3"
 
 on:
   workflow_run:
-    workflows: ["Worker: Step 3 - Modify Work Repo"]
+    workflows: ["Worker: Step 3 - Modify Work Repo Matrix"]
     types:
       - completed
   workflow_dispatch:
