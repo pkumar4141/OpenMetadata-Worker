@@ -23,7 +23,11 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "matrix={\"target\":[{\"name\":\"dev\",\"release_branch\":\"${{ vars.DEV_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.DEV_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.DEV_ES_RELEASE_BRANCH }}\"},{\"name\":\"prd\",\"release_branch\":\"${{ vars.PROD_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.PROD_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"}]}" >> $GITHUB_OUTPUT
+      run: |
+        # echo "matrix={\"target\":[{\"name\":\"dev\",\"release_branch\":\"${{ vars.DEV_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.DEV_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.DEV_ES_RELEASE_BRANCH }}\"},{\"name\":\"prd\",\"release_branch\":\"${{ vars.PROD_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.PROD_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"}]}" >> $GITHUB_OUTPUT
+        echo "matrix<<EOF" >> ${GITHUB_OUTPUT}
+        echo -n "{\"target\":[{\"name\":\"dev\",\"release_branch\":\"${{ vars.DEV_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.DEV_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.DEV_ES_RELEASE_BRANCH }}\"},{\"name\":\"prd\",\"release_branch\":\"${{ vars.PROD_RELEASE_BRANCH }}\",\"release_name\":\"${{ vars.PROD_RELEASE_NAME }}\",\"es_release_branch\":\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"}]" >> ${GITHUB_OUTPUT}
+        echo "EOF" >> ${GITHUB_OUTPUT}
 
   check-matrix:
     runs-on: ubuntu-latest
