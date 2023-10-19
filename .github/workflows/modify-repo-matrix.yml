@@ -141,7 +141,9 @@ jobs:
           yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.target.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
           # AutoHeal
-          yq -i 'with(.services.autoheal ; .container_name = "openmetadata_autoheal" | .image = "willfarrell/autoheal" | .restart = "always" | .environment = ["AUTOHEAL_CONTAINER_LABEL=all"] | .volumes = ["/var/run/docker.sock:/var/run/docker.sock"] | .networks = ["app_net"])' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i 'with(.services.autoheal ; .container_name = "openmetadata_autoheal" | .image = "willfarrell/autoheal" | .restart = "always" | .environment = ["AUTOHEAL_CONTAINER_LABEL=all"] | .volumes = ["/var/run/docker.sock:/var/run/docker.sock"] | .networks = ["app_net"])' ${{ vars.FG_COMPOSE_TARGET }}
+          # Static
+          yq -i 'with(.services.static ; .container_name = "openmetadata_static" | .image = "ghcr.io/jason-clark-fg/docker-static-website-wrapper:main" | .restart = "always" | .expose = [3000] | .ports = ["3000:3000"] | .networks = ["app_net"] | .depends_on.ingestion.condition = "service_healthy")' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
           # yq -i '.services.openmetadata-server.healthcheck.test = ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]' ${{ vars.FG_COMPOSE_TARGET }}
           set +x
