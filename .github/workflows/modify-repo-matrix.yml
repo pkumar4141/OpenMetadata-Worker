@@ -123,9 +123,10 @@ jobs:
           key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-' | grep -v execute-migrate-all)
           for key in ${key_list};do restart_value=$(yq ".services.${key}.restart" ${{ vars.FG_COMPOSE_TARGET }});if [[ $restart_value == null ]];then echo "Adding restart to ${key}";yq -i ".services.${key}.restart = \"always\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
           # yq -i ".services.execute-migrate-all.restart = \"on-failure\"" ${{ vars.FG_COMPOSE_TARGET }}
-          # Allow MySQL Password Override
+          # MySQL
           yq -i '.services.mysql.environment.MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD:-password}"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.mysql.volumes[1] |= "./docker-volume/mysql-entrypoint/mysql-script.sql:/docker-entrypoint-initdb.d/mysql-script.sql"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.mysql.healthcheck.test |= "mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute \"use openmetadata_db\" 2>/dev/null || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # Add Server Settings
           yq -i '.services.openmetadata-server.volumes[0] |= "./docker-volume/jwtkeys:/etc/openmetadata/jwtkeys"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i '.services.execute-migrate-all.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
@@ -135,11 +136,15 @@ jobs:
           # Ingestion
           yq -i '.services.ingestion.volumes += "./docker-volume/ingestion-entrypoint:/opt/airflow/entrypoint"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.ingestion.command[0] |= "/opt/airflow/entrypoint/entrypoint.sh"' ${{ vars.FG_COMPOSE_TARGET }}
-          yq -i '.services.ingestion.healthcheck.test = "airflow jobs check --local || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i 'with(.services.ingestion.healthcheck ; .test = "curl --silent --fail http://localhost:8080/health || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5 | .start_period = "30s")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.ingestion.healthcheck.test = "airflow jobs check --job-type SchedulerJob --local || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
+          # yq -i '.services.ingestion.healthcheck.test = "airflow jobs check --local || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i 'with(.services.ingestion.healthcheck.test; . = ["CMD", "airflow", "jobs", "check", "--local"] | . style="flow")' ${{ vars.FG_COMPOSE_TARGET }}
           # Elasticsearch
           yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.target.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i 'with(.services.elasticsearch.healthcheck ; .test = "curl --silent --user elastic:${ELASTIC_PASSWORD} \"http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s\" || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5)' ${{ vars.FG_COMPOSE_TARGET }}
+          for key in ${key_list};do condition_value=$(yq ".services.${key}.depends_on.elasticsearch.condition" ${{ vars.FG_COMPOSE_TARGET }});if [[ $condition_value == service_started ]];then echo "Updating service_started to service_healthy in ${key}";yq ".services.${key}.depends_on.elasticsearch.condition = \"service_healthy\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
           # AutoHeal
           # yq -i 'with(.services.autoheal ; .container_name = "openmetadata_autoheal" | .image = "willfarrell/autoheal" | .restart = "always" | .environment = ["AUTOHEAL_CONTAINER_LABEL=all"] | .volumes = ["/var/run/docker.sock:/var/run/docker.sock"] | .networks = ["app_net"])' ${{ vars.FG_COMPOSE_TARGET }}
           # Static
