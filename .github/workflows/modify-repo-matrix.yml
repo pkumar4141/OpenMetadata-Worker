@@ -127,7 +127,7 @@ jobs:
           yq -i '.services.mysql.environment.MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD:-password}"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.mysql.environment.OM_DATABASE = "${OM_DATABASE:-openmetadata_db}"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.mysql.volumes[1] |= "./docker-volume/mysql-entrypoint/mysql-script.sql:/docker-entrypoint-initdb.d/mysql-script.sql"' ${{ vars.FG_COMPOSE_TARGET }}
-          yq -i '.services.mysql.healthcheck.test |= "mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute \"use ${OM_DATABASE}\" 2>/dev/null || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.mysql.healthcheck.test |= "mysql --user=root --password=$${MYSQL_ROOT_PASSWORD} --silent --execute \"use $${OM_DATABASE}\" 2>/dev/null || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # Add Server Settings
           yq -i '.services.openmetadata-server.volumes[0] |= "./docker-volume/jwtkeys:/etc/openmetadata/jwtkeys"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i '.services.execute-migrate-all.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
@@ -146,7 +146,7 @@ jobs:
           # Elasticsearch
           yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.target.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
-          yq -i 'with(.services.elasticsearch.healthcheck ; .test = "curl --silent --user elastic:${ELASTIC_PASSWORD} \"http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s\" || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5)' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i 'with(.services.elasticsearch.healthcheck ; .test = "curl --silent --user elastic:$${ELASTIC_PASSWORD} \"http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s\" || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5)' ${{ vars.FG_COMPOSE_TARGET }}
           key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-' | grep -v execute-migrate-all)
           for key in ${key_list};do condition_value=$(yq ".services.${key}.depends_on.elasticsearch.condition" ${{ vars.FG_COMPOSE_TARGET }});if [[ $condition_value == service_started ]];then echo "Updating service_started to service_healthy in ${key}";yq -i ".services.${key}.depends_on.elasticsearch.condition = \"service_healthy\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
           # AutoHeal
