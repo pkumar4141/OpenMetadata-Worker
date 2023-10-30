@@ -69,6 +69,7 @@ jobs:
       run: |
         IMAGE_NAME="${{ github.actor }}/${{ env.IMAGE_BASENAME }}"
         echo "IMAGE_NAME=${IMAGE_NAME,,}" >> $GITHUB_ENV
+        echo "IMAGE_PATH=$(dirname ${{ env.IMAGE_FILE }})" >> $GITHUB_ENV
 
     # Show Info
     - name: "Show: Info"
@@ -119,11 +120,9 @@ jobs:
       id: build-and-push
       uses: docker/build-push-action@v4
       with:
-        # context: ${GITHUB_WORKSPACE}/OpenMetadata-FG/
-        context: .
+        context: ${{ env.IMAGE_PATH }}
         file: ${{ env.IMAGE_FILE }}
         push: ${{ github.event_name != 'pull_request' }}
-        # tags: ${{ steps.meta.outputs.tags }}
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_CURRENT_LABEL }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
