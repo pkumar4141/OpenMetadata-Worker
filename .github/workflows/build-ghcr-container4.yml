@@ -19,7 +19,7 @@ env:
   IMAGE_FILE: "./elasticsearch/Dockerfile"
   IMAGE_DESCRIPTION: "Open-Metadata Elasticsearch Container"
   IMAGE_URL: "https://github.com/elastic/dockerfiles"
-  IMAGE_HEALTHCHECK_INSERT: '/^USER 1000:0.*/a\\nHEALTHCHECK --interval=30s --timeout=10s --retries=5 CMD curl --silent --user elastic:$${ELASTIC_PASSWORD} "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s" || exit 1'
+  IMAGE_HEALTHCHECK_INSERT: '/^# Our actual entrypoint.*/iHEALTHCHECK --interval=30s --timeout=10s --retries=5 CMD curl --silent --user elastic:${ELASTIC_PASSWORD} "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s" || exit 1\\n'
   IMAGE_CURRENT_LABEL: "latest"
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
