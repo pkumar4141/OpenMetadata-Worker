@@ -1,4 +1,4 @@
-name: "Worker: Step 4.3 - Rebuild Container 1"
+name: "Worker: Step 4.3 - Rebuild Container 3"
 
 on:
   workflow_dispatch:
@@ -14,18 +14,18 @@ on:
 env:
   # Use ghcr.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  IMAGE_BASENAME: "openmetadata-db"
+  # IMAGE_BASENAME: "openmetadata-db"
   # IMAGE_BASENAME: "openmetadata-server"
-  # IMAGE_BASENAME: "openmetadata-ingestion"
-  IMAGE_FILE: "./docker/mysql/Dockerfile_mysql"
+  IMAGE_BASENAME: "openmetadata-ingestion"
+  # IMAGE_FILE: "./docker/mysql/Dockerfile_mysql"
   # IMAGE_FILE: "./docker/docker-compose-quickstart/Dockerfile"
-  # IMAGE_FILE: "./ingestion/Dockerfile"
-  IMAGE_DESCRIPTION: "Open-Metadata MySQL Container"
+  IMAGE_FILE: "./ingestion/Dockerfile"
+  # IMAGE_DESCRIPTION: "Open-Metadata MySQL Container"
   # IMAGE_DESCRIPTION: "Open-Metadata Server Container"
-  # IMAGE_DESCRIPTION: "Open-Metadata Ingestion Container"
-  IMAGE_URL: "https://github.com/OpenMetadata-FG/docker/mysql"
+  IMAGE_DESCRIPTION: "Open-Metadata Ingestion Container"
+  # IMAGE_URL: "https://github.com/OpenMetadata-FG/docker/mysql"
   # IMAGE_URL: "https://github.com/OpenMetadata-FG/docker/docker-compose-quickstart"
-  # IMAGE_URL: "https://github.com/OpenMetadata-FG/ingestion"
+  IMAGE_URL: "https://github.com/OpenMetadata-FG/ingestion"
   IMAGE_CURRENT_LABEL: "latest"
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
@@ -117,7 +117,7 @@ jobs:
       id: modify-dockerfile
       run: |
         cat ${{ env.IMAGE_FILE }}
-        sed -i -e '/^RUN\ .*/iHEALTHCHECK --interval=15s --timeout=10s --retries=10 CMD mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute "use ${OM_DATABASE}" 2>/dev/null || exit 1' ${{ env.IMAGE_FILE }}
+        sed -i -e '/^RUN\ airflow\ db.*/a\\nHEALTHCHECK CMD airflow jobs check --job-type SchedulerJob --local || exit 1' ${{ env.IMAGE_FILE }}
         cat ${{ env.IMAGE_FILE }}
 
     # Build and push Docker image with Buildx (don't push on PR)
