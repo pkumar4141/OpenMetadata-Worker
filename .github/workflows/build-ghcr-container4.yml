@@ -30,17 +30,16 @@ jobs:
   # Ref: https://docs.github.com/en/actions/learn-github-actions/expressions#fromjson
   matrix:
     runs-on: ubuntu-latest
-    # if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    if: ${{ github.event_name == 'schedule'  || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
       run: |
-        if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
-          echo "matrix={\"release_branch\":[\"${{ vars.DEV_RELEASE_BRANCH }}\",\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+        if [[ ${{ vars.DEV_ES_RELEASE_BRANCH }} != ${{ vars.PROD_ES_RELEASE_BRANCH }} ]];then
+          echo "matrix={\"release_branch\":[\"${{ vars.DEV_ES_RELEASE_BRANCH }}\",\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
         else
-          echo "matrix={\"release_branch\":[\"${{ vars.PROD_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
+          echo "matrix={\"release_branch\":[\"${{ vars.PROD_ES_RELEASE_BRANCH }}\"]}" >> $GITHUB_OUTPUT
         fi
 
   build:
