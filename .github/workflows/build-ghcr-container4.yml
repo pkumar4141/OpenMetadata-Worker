@@ -62,8 +62,8 @@ jobs:
       with:
         repository: ${{ env.IMAGE_REPO }}
         fetch-depth: 0
-        ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
-        ref: "${{ matrix.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
+        # ssh-key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+        ref: "v${{ matrix.release_branch }}"
 
     # Ref: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-writing-an-environment-variable-to-github_env
     - name: Additional Variables
