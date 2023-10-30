@@ -5,9 +5,9 @@ on:
   schedule:
     - cron: '0 2 * * 6'
   workflow_run:
-    workflows: ["Worker: Step 3 - Modify Work Repo Matrix"]
+    workflows: ["Worker: Step 4.3 - Rebuild Container 2"]
     types:
-      - completed
+      - in_progress
 
 env:
   # Use ghcr.io for Docker Hub if empty
