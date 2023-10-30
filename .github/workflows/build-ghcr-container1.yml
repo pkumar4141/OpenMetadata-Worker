@@ -106,7 +106,7 @@ jobs:
       id: modify-dockerfile
       run: |
         cat ${{ env.IMAGE_FILE }}
-        sed -i -e '/^RUN\ .*/iHEALTHCHECK mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute "use ${OM_DATABASE}" 2>/dev/null || exit 1/' ${{ env.IMAGE_FILE }}
+        sed -i -e '/^RUN\ .*/iHEALTHCHECK mysql --user=root --password="${MYSQL_ROOT_PASSWORD}" --silent --execute "use ${OM_DATABASE}" 2>/dev/null || exit 1/' ${{ env.IMAGE_FILE }}
         cat ${{ env.IMAGE_FILE }}
 
     # Build and push Docker image with Buildx (don't push on PR)
