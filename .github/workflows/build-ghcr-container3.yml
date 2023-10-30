@@ -136,7 +136,7 @@ jobs:
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
         labels: |
           ${{ steps.meta.outputs.labels }}
-          org.opencontainers.image.description="${{ env.IMAGE_DESCRIPTION }}"
+          org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
           org.opencontainers.image.title=${{ env.IMAGE_BASENAME }}
           org.opencontainers.image.url=${{ env.IMAGE_URL }}
         cache-from: type=gha

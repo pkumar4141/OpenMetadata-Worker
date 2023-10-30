@@ -26,6 +26,7 @@ env:
   IMAGE_URL: "https://github.com/OpenMetadata-FG/docker/mysql"
   # IMAGE_URL: "https://github.com/OpenMetadata-FG/docker/docker-compose-quickstart"
   # IMAGE_URL: "https://github.com/OpenMetadata-FG/ingestion"
+  IMAGE_HC_REPLACE: '/^RUN\ .*/iHEALTHCHECK --interval=15s --timeout=10s --retries=10 CMD mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute "use ${OM_DATABASE}" 2>/dev/null || exit 1'
   IMAGE_CURRENT_LABEL: "latest"
   SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
@@ -117,7 +118,7 @@ jobs:
       id: modify-dockerfile
       run: |
         cat ${{ env.IMAGE_FILE }}
-        sed -i -e '/^RUN\ .*/iHEALTHCHECK --interval=15s --timeout=10s --retries=10 CMD mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --silent --execute "use ${OM_DATABASE}" 2>/dev/null || exit 1' ${{ env.IMAGE_FILE }}
+        sed -i -e '${{ env.IMAGE_HC_REPLACE }}' ${{ env.IMAGE_FILE }}
         cat ${{ env.IMAGE_FILE }}
 
     # Build and push Docker image with Buildx (don't push on PR)
@@ -136,7 +137,7 @@ jobs:
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.release_branch }}
         labels: |
           ${{ steps.meta.outputs.labels }}
-          org.opencontainers.image.description="${{ env.IMAGE_DESCRIPTION }}"
+          org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
           org.opencontainers.image.title=${{ env.IMAGE_BASENAME }}
           org.opencontainers.image.url=${{ env.IMAGE_URL }}
         cache-from: type=gha
