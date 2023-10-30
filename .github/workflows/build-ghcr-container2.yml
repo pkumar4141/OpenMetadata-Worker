@@ -3,13 +3,17 @@ name: "Worker: Step 4.3 - Rebuild Container 2"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * 6'
+    - cron: '0 2 * * 6'
   push:
     branches: [ "main", "master" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_run:
+    workflows: ["Worker: Step 3 - Modify Work Repo Matrix"]
+    types:
+      - completed
 
 env:
   # Use ghcr.io for Docker Hub if empty
