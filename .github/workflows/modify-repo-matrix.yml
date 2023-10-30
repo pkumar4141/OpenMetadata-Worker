@@ -130,6 +130,7 @@ jobs:
           yq -i '.services.mysql.healthcheck.test |= "mysql --user=root --password=$${MYSQL_ROOT_PASSWORD} --silent --execute \"use $${OM_DATABASE}\" 2>/dev/null || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # Add Server Settings
           yq -i '.services.openmetadata-server.volumes[0] |= "./docker-volume/jwtkeys:/etc/openmetadata/jwtkeys"' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i '.services.openmetadata-server.healthcheck.test |= "wget -q --spider "http://localhost:8586/healthcheck" || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i '.services.execute-migrate-all.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i '.services.openmetadata-server.environment.AIRFLOW_HOST = "${AIRFLOW_HOST:-"http://ingestion:8080"}"' ${{ vars.FG_COMPOSE_TARGET }}
           # Incorporate healthcheck fix (no longer necessary from version 1.1.1 onward)
