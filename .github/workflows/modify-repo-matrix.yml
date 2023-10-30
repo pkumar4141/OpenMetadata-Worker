@@ -146,7 +146,24 @@ jobs:
           # yq -i 'with(.services.ingestion.healthcheck.test; . = ["CMD", "airflow", "jobs", "check", "--local"] | . style="flow")' ${{ vars.FG_COMPOSE_TARGET }}
           # Elasticsearch
           yq -i '.services.elasticsearch.image |= sub("[0-9]\..*", "${{ matrix.target.es_release_branch }}")' ${{ vars.FG_COMPOSE_TARGET }}
-          yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"] | .services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"] | .services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' ${{ vars.FG_COMPOSE_TARGET }}
+          es_xpack_security=$(yq '.services.elasticsearch.environment.[] | select(. == "xpack.security.enabled=*")' docker-compose.yml)
+          if [[ -n $es_xpack_security ]];then
+            yq -i '(.services.elasticsearch.environment.[] | select(. == "xpack.security.enabled=*")) |= "xpack.security.enabled=false"' docker-compose.yml
+          else
+            yq -i '.services.elasticsearch.environment += ["xpack.security.enabled=true"]' docker-compose.yml
+          fi
+          es_es_password=$(yq '.services.elasticsearch.environment.[] | select(. == "ELASTIC_PASSWORD=*")' docker-compose.yml)
+          if [[ -n $es_es_password ]];then
+            yq -i '(.services.elasticsearch.environment.[] | select(. == "ELASTIC_PASSWORD=*")) |= "ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"' docker-compose.yml
+          else
+            yq -i '.services.elasticsearch.environment += ["ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}"]' docker-compose.yml
+          fi
+          es_ks_password=$(yq '.services.elasticsearch.environment.[] | select(. == "KEYSTORE_PASSWORD=*")' docker-compose.yml)
+          if [[ -n $es_ks_password ]];then
+            yq -i '(.services.elasticsearch.environment.[] | select(. == "KEYSTORE_PASSWORD=*")) |= "KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"' docker-compose.yml
+          else
+            yq -i '.services.elasticsearch.environment += ["KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-}"]' docker-compose.yml
+          fi
           yq -i 'with(.services.elasticsearch.healthcheck ; .test = "curl --silent --user elastic:$${ELASTIC_PASSWORD} \"http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=15s\" || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5)' ${{ vars.FG_COMPOSE_TARGET }}
           key_list=$(yq '.services | keys' ${{ vars.FG_COMPOSE_TARGET }} | cut -c '3-' | grep -v execute-migrate-all)
           for key in ${key_list};do condition_value=$(yq ".services.${key}.depends_on.elasticsearch.condition" ${{ vars.FG_COMPOSE_TARGET }});if [[ $condition_value == service_started ]];then echo "Updating service_started to service_healthy in ${key}";yq -i ".services.${key}.depends_on.elasticsearch.condition = \"service_healthy\"" ${{ vars.FG_COMPOSE_TARGET }};fi;done
