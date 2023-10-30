@@ -73,7 +73,7 @@ jobs:
     - name: Additional Variables
       run: |
         IMAGE_NAME="${{ github.actor }}/${{ env.IMAGE_BASENAME }}"
-        echo "${IMAGE_NAME,,}" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${IMAGE_NAME,,}" >> $GITHUB_ENV
 
     # Show Info
     - name: "Show: Info"
