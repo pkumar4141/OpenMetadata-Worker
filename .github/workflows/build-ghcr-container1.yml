@@ -34,11 +34,11 @@ env:
 
 jobs:
   call-workflow-2:
-    uses: ./.github/workflows/build-ghcr-container2@v1
+    uses: ./.github/workflows/build-ghcr-container2.yml
   call-workflow-3:
-    uses: ./.github/workflows/build-ghcr-container3@v1
+    uses: ./.github/workflows/build-ghcr-container3.yml
   call-workflow-4:
-    uses: ./.github/workflows/build-ghcr-container4@v1
+    uses: ./.github/workflows/build-ghcr-container4.yml
   # Ref: https://www.cynkra.com/blog/2020-12-23-dynamic-gha/
   # Ref: https://tomasvotruba.com/blog/2020/11/16/how-to-make-dynamic-matrix-in-github-actions/
   # Ref: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/#new-fromjson-method-in-expressions
