@@ -4,10 +4,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 2 * * 6'
-  workflow_run:
-    workflows: ["Worker: Step 4.3 - Rebuild Container 1"]
-    types:
-      - in_progress
+  workflow_call:
+  # workflow_run:
+  #   workflows: ["Worker: Step 4.3 - Rebuild Container 1"]
+  #   types:
+  #     - in_progress
 
 env:
   # Use ghcr.io for Docker Hub if empty
