@@ -67,14 +67,15 @@ jobs:
       shell: bash {0}
       run: |
         # Install Mend
-        curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+        mkdir -p /c/mend/cli && curl https://downloads.mend.io/cli/windows_amd64/mend.exe -o /c/mend/cli/mend.exe
+        PATH=$PATH:/c/mend/cli
         # Image 1 - DEV
         if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
           for ((tries=1;tries <= ${{ env.SCAN_RETRIES }};tries++));do
             echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.DEV_RELEASE_BRANCH }}"
             mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.DEV_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
             RESULT=$?
-            (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+            [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
           done
         fi
         # Image 1 - PRD
@@ -82,7 +83,7 @@ jobs:
           echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.PROD_RELEASE_BRANCH }}"
           mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_1 }}:${{ vars.PROD_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
           RESULT=$?
-          (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+          [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
         done
         # Image 2 - DEV
         if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
@@ -90,7 +91,7 @@ jobs:
             echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.DEV_RELEASE_BRANCH }}"
             mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.DEV_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
             RESULT=$?
-            (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+            [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
           done
         fi
         # Image 2 - PRD
@@ -98,7 +99,7 @@ jobs:
           echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.PROD_RELEASE_BRANCH }}"
           mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_3 }}:${{ vars.PROD_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
           RESULT=$?
-          (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+          [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
         done
         # Image 3 - DEV
         if [[ ${{ vars.DEV_ES_RELEASE_BRANCH }} != ${{ vars.PROD_ES_RELEASE_BRANCH }} ]];then
@@ -106,7 +107,7 @@ jobs:
             echo "Scanning ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.DEV_ES_RELEASE_BRANCH }}"
             mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.DEV_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
             RESULT=$?
-            (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+            [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
           done
         fi
         # Image 3 -PRD
@@ -114,7 +115,7 @@ jobs:
           echo "Scanning ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.PROD_ES_RELEASE_BRANCH }}"
           mend image ${{ env.IMAGE_REGISTRY_2 }}/${{ env.IMAGE_OWNER_2 }}/${{ env.IMAGE_NAME_4 }}:${{ vars.PROD_ES_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
           RESULT=$?
-          (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+          [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
         done
         # Image 4 - DEV
         if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
@@ -122,7 +123,7 @@ jobs:
             echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.DEV_RELEASE_BRANCH }}"
             mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.DEV_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
             RESULT=$?
-            (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+            [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
           done
         fi
         # Image 4 - PRD
@@ -130,7 +131,7 @@ jobs:
           echo "Scanning ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.PROD_RELEASE_BRANCH }}"
           mend image ${{ env.IMAGE_REGISTRY_1 }}/${{ env.IMAGE_OWNER_1 }}/${{ env.IMAGE_NAME_2 }}:${{ vars.PROD_RELEASE_BRANCH }} --filename ./reports/${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif --format sarif --no-color --no-progress
           RESULT=$?
-          (( $RESULT == 0 )) && break 1 || echo "Trying again ... "
+          [[ $RESULT == 0 ]] && break 1 || echo "Trying again ... "
         done
       env:
         MEND_URL: ${{ vars.MEND_URL }}
@@ -143,70 +144,3 @@ jobs:
       run: |
         ls -lR ${GITHUB_WORKSPACE}
 
-    # # Ref: https://github.com/microsoft/sarif-actions
-    # - name: SARIF Multitool 1
-    #   id: sarif-multitool-1
-    #   uses: microsoft/sarif-actions@v0.1
-    #   with:
-    #     # Command to be sent to SARIF Multitool
-    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_1 }}.sarif'
-    # # # Ref: https://github.com/microsoft/sarif-actions
-    # - name: SARIF Multitool 2
-    #   id: sarif-multitool-2
-    #   uses: microsoft/sarif-actions@v0.1
-    #   with:
-    #     # Command to be sent to SARIF Multitool
-    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_2 }}.sarif'
-    # # Ref: https://github.com/microsoft/sarif-actions
-    # - name: SARIF Multitool 3
-    #   id: sarif-multitool-3
-    #   uses: microsoft/sarif-actions@v0.1
-    #   with:
-    #     # Command to be sent to SARIF Multitool
-    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_3 }}.sarif'
-    # # Ref: https://github.com/microsoft/sarif-actions
-    # - name: SARIF Multitool 4
-    #   id: sarif-multitool-4
-    #   uses: microsoft/sarif-actions@v0.1
-    #   with:
-    #     # Command to be sent to SARIF Multitool
-    #     command: 'validate ${GITHUB_WORKSPACE}/reports/${{ env.IMAGE_NAME_4 }}.sarif'
-
-    # # Currently mend image outputs invalid SARIF, so we will skip this
-    # # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
-    # - name: "Mend: Upload SARIF result 1"
-    #   id: upload-sarif-1
-    #   if: ${{ github.event_name != 'pull_request_target' }}
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   with:
-    #     category: mend-sca-${{ env.IMAGE_NAME_1 }}
-    #     sarif_file: './reports/${{ env.IMAGE_NAME_1 }}.sarif'
-    #     wait-for-processing: false
-    #     # checkout_path: "self"
-    # - name: "Mend: Upload SARIF result 2"
-    #   id: upload-sarif-2
-    #   if: ${{ github.event_name != 'pull_request_target' }}
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   with:
-    #     category: mend-sca-${{ env.IMAGE_NAME_2 }}
-    #     sarif_file: './reports/${{ env.IMAGE_NAME_2 }}.sarif'
-    #     wait-for-processing: false
-    #     # checkout_path: "self"
-    # - name: "Mend: Upload SARIF result 3"
-    #   id: upload-sarif-3
-    #   if: ${{ github.event_name != 'pull_request_target' }}
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   with:
-    #     category: mend-sca-${{ env.IMAGE_NAME_3 }}
-    #     sarif_file: './reports/${{ env.IMAGE_NAME_3 }}.sarif'
-    #     wait-for-processing: false
-    #     # checkout_path: "self"
-    # - name: "Mend: Upload SARIF result 4"
-    #   id: upload-sarif-4
-    #   if: ${{ github.event_name != 'pull_request_target' }}
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   with:
-    #     category: mend-sca-${{ env.IMAGE_NAME_4 }}
-    #     sarif_file: './reports/${{ env.IMAGE_NAME_4 }}.sarif'
-    #     wait-for-processing: false
-    #     # checkout_path: "self"
