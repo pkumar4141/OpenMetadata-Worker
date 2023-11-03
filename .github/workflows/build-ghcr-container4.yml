@@ -6,7 +6,9 @@ on:
   #   - cron: '0 2 * * 6'
   # workflow_call:
   workflow_run:
-    workflows: ["Worker: Step 4.3 - Rebuild Container 1"]
+    workflows:
+      - "Worker: Step 3 - Modify Work Repo Matrix"
+      - "Worker: Step 4.3 - Rebuild Container 1"
     types:
       - completed
 
@@ -29,7 +31,7 @@ jobs:
   # Ref: https://docs.github.com/en/actions/learn-github-actions/expressions#fromjson
   matrix:
     runs-on: ubuntu-latest
-    # if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     # if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
