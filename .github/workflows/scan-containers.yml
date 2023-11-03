@@ -66,6 +66,7 @@ jobs:
       run: |
         # Install Mend
         curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+        mend version
         # Image 1 - DEV
         if [[ ${{ vars.DEV_RELEASE_BRANCH }} != ${{ vars.PROD_RELEASE_BRANCH }} ]];then
           for ((tries=1;tries <= ${{ env.SCAN_RETRIES }};tries++));do
