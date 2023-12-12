@@ -142,7 +142,7 @@ jobs:
           yq -i '.services.ingestion.volumes += "./docker-volume/ingestion-entrypoint:/opt/airflow/entrypoint"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.ingestion.volumes += "./docker-volume/logs/ingestion:/opt/airflow/logs"' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.ingestion.command[0] |= "/opt/airflow/entrypoint/entrypoint.sh"' ${{ vars.FG_COMPOSE_TARGET }}
-          yq -i 'with(.services.ingestion.environment.AIRFLOW__DATABASE__SQL_ALCHEMY_CONN ; . = "$${DB_SCHEME}://$${DB_USER}:$${DB_PASSWORD}@$${DB_HOST}:$${DB_PORT}/$$AIRFLOW_DB}$${DB_PROPERTIES}" | . style="double")' ${{ vars.FG_COMPOSE_TARGET }}
+          yq -i 'with(.services.ingestion.environment.AIRFLOW__DATABASE__SQL_ALCHEMY_CONN ; . = "$${DB_SCHEME}://$${DB_USER}:$${DB_PASSWORD}@$${DB_HOST}:$${DB_PORT}/$${AIRFLOW_DB}$${DB_PROPERTIES}" | . style="double")' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i 'with(.services.ingestion.healthcheck ; .test = "curl -fsu $${AIRFLOW_ADMIN_USER}:$${AIRFLOW_ADMIN_PASSWORD} http://localhost:8080/health || exit 1" | .interval = "30s" | .timeout = "10s" | .retries = 5 | .start_period = "30s")' ${{ vars.FG_COMPOSE_TARGET }}
           yq -i '.services.ingestion.healthcheck.test = "airflow jobs check --job-type SchedulerJob --local || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
           # yq -i '.services.ingestion.healthcheck.test = "airflow jobs check --local || exit 1"' ${{ vars.FG_COMPOSE_TARGET }}
