@@ -178,7 +178,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_1 }}
+        category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -187,7 +187,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_1 }}
+        category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -196,7 +196,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_2 }}
+        category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -205,7 +205,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_2 }}
+        category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -214,7 +214,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_3 }}
+        category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -223,7 +223,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_3 }}
+        category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -232,7 +232,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_4 }}
+        category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
@@ -241,7 +241,7 @@ jobs:
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_4 }}
+        category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}
         sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
         wait-for-processing: false
         # checkout_path: "self"
