@@ -173,76 +173,85 @@ jobs:
 
     # Currently mend image outputs invalid SARIF, so we will skip this
     # Ref: https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
-    - name: "Mend: Upload SARIF result 1d"
-      id: upload-sarif-1d
+    - name: "Mend: Upload SARIF results"
+      id: upload-sarif-all
       if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
       uses: github/codeql-action/upload-sarif@v2
       with:
-        category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
+        # category: mend-sca
+        sarif_file: './reports'
         wait-for-processing: false
         # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 1p"
-      id: upload-sarif-1p
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 2d"
-      id: upload-sarif-2d
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 2p"
-      id: upload-sarif-2p
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 3d"
-      id: upload-sarif-3d
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 3p"
-      id: upload-sarif-3p
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 4d"
-      id: upload-sarif-4d
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
-    - name: "Mend: Upload SARIF result 4p"
-      id: upload-sarif-4p
-      if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}
-        sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
-        wait-for-processing: false
-        # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 1d"
+    #   id: upload-sarif-1d
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 1p"
+    #   id: upload-sarif-1p
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_1 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 2d"
+    #   id: upload-sarif-2d
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 2p"
+    #   id: upload-sarif-2p
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_2 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 3d"
+    #   id: upload-sarif-3d
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 3p"
+    #   id: upload-sarif-3p
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_3 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 4d"
+    #   id: upload-sarif-4d
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.DEV_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
+    # - name: "Mend: Upload SARIF result 4p"
+    #   id: upload-sarif-4p
+    #   if: ${{ github.event_name != 'pull_request_target' && env.REPORTS_OUT == 'true' }}
+    #   uses: github/codeql-action/upload-sarif@v2
+    #   with:
+    #     category: mend-sca-${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}
+    #     sarif_file: './reports/${{ env.IMAGE_NAME_4 }}-${{ vars.PROD_RELEASE_BRANCH }}.sarif'
+    #     wait-for-processing: false
+    #     # checkout_path: "self"
 
