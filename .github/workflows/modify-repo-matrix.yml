@@ -92,7 +92,7 @@ jobs:
           git pull
           set -x
           if [[ ! -e ./${{ env.MEND_CONFIG_FILE }} ]];then
-            which jq >/dev/null 2>&1;echo $?
+            command -v jq >/dev/null 2>&1;echo $?
             # Whitesource (Mend.io) template
             # echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":true}}}' | jq ".scanSettings.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\" | .scanSettingsSAST.baseBranches[0] |= \"${{ vars.RELEASE_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
             echo '{"scanSettings":{"configMode":"AUTO","configExternalURL":"","projectToken":"","baseBranches":[]},"scanSettingsSAST":{"enableScan":false,"scanPullRequests":false,"incrementalScan":true,"baseBranches":[],"snippetSize":10},"checkRunSettings":{"vulnerableCheckRunConclusionLevel":"failure","displayMode":"diff","useMendCheckNames":true},"checkRunSettingsSAST":{"checkRunConclusionLevel":"failure","severityThreshold":"high"},"issueSettings":{"minSeverityLevel":"LOW","issueType":"DEPENDENCY"},"remediateSettings":{"workflowRules":{"enabled":false}}}' | jq "(.scanSettings.baseBranches[0],.scanSettingsSAST.baseBranches[0]) |= \"${{ vars.PROD_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[1],.scanSettingsSAST.baseBranches[1]) |= \"${{ vars.DEV_RELEASE_BRANCH }}\" | (.scanSettings.baseBranches[2],.scanSettingsSAST.baseBranches[2]) |= \"${{ env.REPO_DEFAULT_BRANCH }}\"" | tee ./${{ env.MEND_CONFIG_FILE }}
@@ -115,7 +115,7 @@ jobs:
           git status
           git switch -C "${{ matrix.target.release_branch }}-${{ vars.BRANCH_SUFFIX }}"
           set -x
-          which yq >/dev/null 2>&1;echo $?
+          command -v yq >/dev/null 2>&1;echo $?
           compose_top_level_name="${${{ vars.FG_COMPOSE_TOP_LEVEL_NAME }}:-openmetadata}"
           top_level_name=$(yq ".name" ${{ vars.FG_COMPOSE_TARGET }})
           if [[ ${top_level_name} == null ]];then echo "Adding top-level name";yq -i ".name = \"${compose_top_level_name}\"" ${{ vars.FG_COMPOSE_TARGET }};fi
