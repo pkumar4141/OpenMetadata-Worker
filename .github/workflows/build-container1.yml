@@ -1,4 +1,4 @@
-name: "Worker: Step 4.2 - Build Container 1"
+name: "Worker: Step 4.2 - Build Container  1"
 
 on:
   workflow_dispatch:
