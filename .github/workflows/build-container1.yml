@@ -6,7 +6,7 @@ on:
     - cron: '0 1 * * 6'
 
 env:
-  # Use docker.io for Docker Hub if empty
+  # Use docker.io for Docker Hub if empty test
   REGISTRY: docker.io
   IMAGE_BASENAME: "fg-openmetadata-db"
   # IMAGE_BASENAME: "fg-openmetadata-server"
