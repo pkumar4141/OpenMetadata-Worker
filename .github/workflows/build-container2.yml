@@ -1,4 +1,4 @@
-name: "Worker: Step 4.2 - Build Container 2"
+name: "Worker: Step 4.2 -  Build Container 2"
 
 on:
   workflow_run:
